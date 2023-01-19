@@ -3,17 +3,20 @@
 // https://nextjs.org/docs/api-reference/next.config.js/introduction
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-const { withSentryConfig } = require("@sentry/nextjs");
 const { i18n } = require("./next-i18next.config");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+/** @type {import('next').NextConfig} */
 const moduleExports = {
   future: {
     webpack5: false,
   },
   i18n: i18n,
+  experimental: {
+    runtime: "edge",
+  },
   productionBrowserSourceMaps: true,
   webpack(config) {
     config.module.rules.push({
@@ -72,6 +75,4 @@ const sentryWebpackPluginOptions = {
 
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
-module.exports = withBundleAnalyzer(
-  withSentryConfig(moduleExports, sentryWebpackPluginOptions),
-);
+module.exports = withBundleAnalyzer(moduleExports);
