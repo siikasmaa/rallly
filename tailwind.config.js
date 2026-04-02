@@ -2,7 +2,11 @@ const colors = require("tailwindcss/colors");
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  content: ["./src/pages/**/*.{ts,tsx}", "./src/components/**/*.{ts,tsx}"],
+  content: [
+    "./src/pages/**/*.{astro,ts,tsx}",
+    "./src/components/**/*.{astro,ts,tsx}",
+    "./src/layouts/**/*.astro",
+  ],
   theme: {
     extend: {
       boxShadow: {

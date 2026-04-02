@@ -1,0 +1,24 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import FullPageLoader from "@/components/full-page-loader";
+---
+
+<AppLayout title="Rallly - Demo">
+  <div id="demo-page" data-base-url={Astro.url.origin}>
+    <FullPageLoader client:load>Creating demo...</FullPageLoader>
+  </div>
+  <script>
+    // Client-side: create demo poll and redirect
+    import { trpc } from "@/utils/trpc";
+
+    async function createDemo() {
+      try {
+        const urlId = await trpc.polls.demo.create.mutate();
+        window.location.href = `/admin/${urlId}`;
+      } catch {
+        window.location.href = "/new";
+      }
+    }
+    createDemo();
+  </script>
+</AppLayout>

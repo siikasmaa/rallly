@@ -1,0 +1,11 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import Profile from "@/components/profile";
+import StandardLayout from "@/components/standard-layout";
+---
+
+<AppLayout title="Rallly - Profile">
+  <StandardLayout client:only="react">
+    <Profile client:only="react" />
+  </StandardLayout>
+</AppLayout>

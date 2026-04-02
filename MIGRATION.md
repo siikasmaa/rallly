@@ -124,14 +124,14 @@ All tRPC routers use Prisma directly. Each must be rewritten.
 
 ### 3a: Project scaffolding
 
-- [ ] Initialize Astro project in repo root (`astro.config.mjs`)
-- [ ] Configure Astro with `@astrojs/react` integration (keep existing React components)
-- [ ] Configure Astro with `@astrojs/cloudflare` adapter for SSR
-- [ ] Configure Astro with `@astrojs/tailwind` integration
-- [ ] Set up path aliases in Astro config and `tsconfig.json` (`@/*` → `src/*`)
-- [ ] Move/adapt `tailwind.config.js` (custom theme: colors, animations, fonts, screens)
-- [ ] Move `postcss.config.js`
-- [ ] Set up `public/` static assets (favicons, images, locale JSON files)
+- [x] Initialize Astro project in repo root (`astro.config.mjs`)
+- [x] Configure Astro with `@astrojs/react` integration (keep existing React components)
+- [x] Configure Astro with `@astrojs/cloudflare` adapter for SSR
+- [x] Configure Astro with `@astrojs/tailwind` integration
+- [x] Set up path aliases in Astro config and `tsconfig.json` (`@/*` → `src/*`)
+- [x] Move/adapt `tailwind.config.js` (custom theme: colors, animations, fonts, screens)
+- [x] Move `postcss.config.js`
+- [x] Set up `public/` static assets (favicons, images, locale JSON files)
 
 ### 3b: Routing migration
 
@@ -148,33 +148,33 @@ Next.js pages → Astro pages. Astro uses file-based routing in `src/pages/`.
 | `src/pages/404.tsx` | 404 | `src/pages/404.astro` | Static |
 | `src/pages/privacy-policy.tsx` | `/privacy-policy` | `src/pages/privacy-policy.astro` | Static |
 
-- [ ] Create Astro page files for each route above
-- [ ] Migrate URL rewrites from `next.config.js` to Astro routing
+- [x] Create Astro page files for each route above
+- [x] Migrate URL rewrites from `next.config.js` to Astro routing
   - `/p/:urlId` → poll participant view
   - `/admin/:urlId` → poll admin view
   - `/verify/:urlId/code/:code` → verification
-- [ ] Remove `_app.tsx` — move global providers into an Astro layout
-- [ ] Remove `_document.tsx` — move head/meta/fonts into Astro layout `<head>`
-- [ ] Remove `_error.tsx` — use Astro error pages
+- [x] Remove `_app.tsx` — move global providers into an Astro layout
+- [x] Remove `_document.tsx` — move head/meta/fonts into Astro layout `<head>`
+- [x] Remove `_error.tsx` — use Astro error pages
 
 ### 3c: Middleware migration
 
-- [ ] Rewrite `src/middleware.ts` from Next.js Edge middleware to Astro middleware (`src/middleware.ts`)
+- [x] Rewrite `src/middleware.ts` from Next.js Edge middleware to Astro middleware (`src/middleware.ts`)
   - Locale detection (cookie `NEXT_LOCALE` → Accept-Language header → default `en`)
   - Session initialization (guest user creation)
-- [ ] Ensure middleware has access to D1 binding via `context.locals`
+- [x] Ensure middleware has access to D1 binding via `context.locals`
 
 ### 3d: Component hydration strategy
 
 Next.js renders everything server-side by default. Astro renders nothing client-side by default. Each interactive React component needs an explicit hydration directive.
 
-- [ ] Audit all components in `src/components/` for interactivity requirements
-- [ ] Components that are **static** (no useState, no event handlers) → render in `.astro` files directly or as `client:none`
-- [ ] Components that need **immediate interactivity** → `client:load`
+- [x] Audit all components in `src/components/` for interactivity requirements
+- [x] Components that are **static** (no useState, no event handlers) → render in `.astro` files directly or as `client:none`
+- [x] Components that need **immediate interactivity** → `client:load`
   - Poll voting UI, forms, modals, toast notifications
-- [ ] Components that can **defer hydration** → `client:visible` or `client:idle`
+- [x] Components that can **defer hydration** → `client:visible` or `client:idle`
   - Comments section, calendar view, Crisp chat widget
-- [ ] Replace all `next/dynamic` with `ssr: false` → Astro `client:only="react"` directive
+- [x] Replace all `next/dynamic` with `ssr: false` → Astro `client:only="react"` directive
   - `CrispChat` (in _app.tsx)
   - `Poll` component (in poll.tsx)
   - `CreatePoll` component (in new.tsx)
@@ -187,14 +187,14 @@ Next.js renders everything server-side by default. Astro renders nothing client-
   - Query params: `useRouter().query` → `Astro.url.searchParams` (server) / `URLSearchParams` (client)
   - Navigation: `router.push()` → `window.location.href` or `navigate()`
   - Pathname: `router.pathname` → `Astro.url.pathname` (server) / `window.location.pathname` (client)
-- [ ] Replace `next/head` → Astro `<head>` in layouts
+- [x] Replace `next/head` → Astro `<head>` in layouts
 - [ ] Replace `next/image` → `<img>` or `astro:assets` (not heavily used currently)
 - [ ] Remove `next.config.js`, `next-i18next.config.js`
 
 ### 3f: i18n migration
 
-- [ ] Choose Astro i18n approach (built-in `i18n` routing config or `astro-i18next`)
-- [ ] Configure locale routing for 16 locales (cs, da, de, en, es, fa, fr, hu, it, ko, nl, pl, pt, pt-BR, sk, sv, zh)
+- [x] Choose Astro i18n approach (built-in `i18n` routing config or `astro-i18next`)
+- [x] Configure locale routing for 16 locales (cs, da, de, en, es, fa, fr, hu, it, ko, nl, pl, pt, pt-BR, sk, sv, zh)
 - [ ] Migrate translation JSON files (`public/locales/{locale}/*.json`) to new i18n system
 - [ ] Replace `useTranslation()` hook calls in React components
 - [ ] Replace `serverSideTranslations()` calls in page data loading

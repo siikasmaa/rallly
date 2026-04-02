@@ -1,0 +1,8 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import CreatePoll from "@/components/create-poll";
+---
+
+<AppLayout title="Rallly - New Poll">
+  <CreatePoll client:only="react" />
+</AppLayout>

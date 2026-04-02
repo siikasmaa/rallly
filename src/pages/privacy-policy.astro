@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageLayout from "@/components/page-layout";
+---
+
+<BaseLayout title="Rallly - Privacy Policy">
+  <PageLayout client:load>
+    <div class="prose mx-auto max-w-3xl py-16">
+      <h1>Privacy Policy</h1>
+      <p>
+        Rallly does not sell or share your data with any third parties. While
+        using this app, you may be asked to provide certain personally
+        identifiable information that can be used to contact or identify you. This
+        data will be used only to improve the app.
+      </p>
+      <h2>Cookies</h2>
+      <p>
+        Cookies are used to store session data. No third-party cookies are used
+        for tracking.
+      </p>
+      <h2>Analytics</h2>
+      <p>
+        This site uses Plausible analytics, a privacy-friendly analytics tool.
+        No personal data is collected. No cookies are used for analytics purposes.
+      </p>
+    </div>
+  </PageLayout>
+</BaseLayout>

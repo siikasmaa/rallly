@@ -1,0 +1,32 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import FullPageLoader from "@/components/full-page-loader";
+
+// Server-side: handle login token verification
+// The actual login logic will be handled by the tRPC endpoint
+// This page shows a loading state while the client processes the token
+const code = Astro.url.searchParams.get("code");
+
+if (!code) {
+  return Astro.redirect("/new");
+}
+---
+
+<BaseLayout title="Logging in...">
+  <div id="login-page" data-code={code}>
+    <FullPageLoader client:load>Logging in...</FullPageLoader>
+  </div>
+  <script>
+    // Client-side: process login token
+    const loginPage = document.getElementById("login-page");
+    const code = loginPage?.dataset.code;
+
+    if (code) {
+      // Login processing will be handled by the auth system
+      // For now redirect after a brief delay
+      setTimeout(() => {
+        window.location.href = "/new";
+      }, 1000);
+    }
+  </script>
+</BaseLayout>

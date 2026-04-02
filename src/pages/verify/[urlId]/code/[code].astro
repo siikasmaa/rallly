@@ -1,0 +1,5 @@
+---
+// Redirect verify URLs to the poll admin page with the code as a query param
+const { urlId, code } = Astro.params;
+return Astro.redirect(`/admin/${urlId}?code=${code}`);
+---

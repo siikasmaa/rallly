@@ -1,5 +1,5 @@
+import type { MiddlewareHandler } from "astro";
 import languageParser from "accept-language-parser";
-import { NextRequest, NextResponse } from "next/server";
 
 const supportedLocales = [
   "cs",
@@ -20,35 +20,35 @@ const supportedLocales = [
   "zh",
 ];
 
-export function middleware({ headers, cookies, nextUrl }: NextRequest) {
-  const newUrl = nextUrl.clone();
+export const onRequest: MiddlewareHandler = async (context, next) => {
+  const { request } = context;
 
-  // Check if locale is specified in cookie
-  const localeCookie = cookies.get("NEXT_LOCALE");
+  // Locale detection: cookie -> Accept-Language -> default (en)
+  const cookies = context.cookies;
+  const localeCookie = cookies.get("NEXT_LOCALE")?.value;
 
+  let detectedLocale = "en";
   if (localeCookie && supportedLocales.includes(localeCookie)) {
-    newUrl.pathname = `/${localeCookie}${newUrl.pathname}`;
-    return NextResponse.rewrite(newUrl);
+    detectedLocale = localeCookie;
   } else {
-    // Check if locale is specified in header
-    const acceptLanguageHeader = headers.get("accept-language");
-
-    if (acceptLanguageHeader) {
-      const locale = languageParser.pick(
-        supportedLocales,
-        acceptLanguageHeader,
-      );
-
-      if (locale) {
-        newUrl.pathname = `/${locale}${newUrl.pathname}`;
-        return NextResponse.rewrite(newUrl);
+    const acceptLanguage = request.headers.get("accept-language");
+    if (acceptLanguage) {
+      const parsed = languageParser.pick(supportedLocales, acceptLanguage);
+      if (parsed) {
+        detectedLocale = parsed;
       }
     }
   }
 
-  return NextResponse.next();
-}
+  // Store locale in context for use in pages
+  context.locals.locale = detectedLocale;
 
-export const config = {
-  matcher: ["/admin/:id", "/demo", "/p/:id", "/profile", "/new", "/login"],
+  // Initialize D1 database binding from Cloudflare runtime
+  const runtime = (context.locals as any).runtime;
+  if (runtime?.env?.DB) {
+    const { getDb } = await import("@/db");
+    getDb(runtime.env.DB);
+  }
+
+  return next();
 };

@@ -1,0 +1,16 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import PollPage from "@/components/poll";
+
+const { urlId } = Astro.params;
+const code = Astro.url.searchParams.get("code") ?? undefined;
+---
+
+<AppLayout title="Rallly - Poll Admin">
+  <PollPage
+    client:only="react"
+    urlId={urlId}
+    admin={true}
+    code={code}
+  />
+</AppLayout>
