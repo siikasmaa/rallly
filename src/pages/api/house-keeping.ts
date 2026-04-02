@@ -1,6 +1,6 @@
+import type { APIRoute } from "astro";
 import dayjs from "dayjs";
 import { and, asc, eq, inArray, lte, or, sql } from "drizzle-orm";
-import { NextApiRequest, NextApiResponse } from "next";
 
 import { getDb } from "@/db";
 import { comments, options, participants, polls, votes } from "@/db/schema";
@@ -10,21 +10,11 @@ import { parseValue } from "../../utils/date-time-utils";
 /**
  * DANGER: This endpoint will permanently delete polls.
  */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    res.status(405).end("Method not allowed");
-    return;
-  }
-
-  const { authorization } = req.headers;
+export const POST: APIRoute = async ({ request }) => {
+  const authorization = request.headers.get("authorization");
 
   if (authorization !== `Bearer ${process.env.API_SECRET}`) {
-    res.status(401).json({ success: false });
-    return;
+    return new Response(JSON.stringify({ success: false }), { status: 401 });
   }
 
   const db = getDb();
@@ -60,7 +50,7 @@ export default async function handler(
 
   let softDeletedCount = 0;
   if (pollsToSoftDelete.length > 0) {
-    const result = await db
+    await db
       .update(polls)
       .set({ deleted: true, deletedAt: new Date() })
       .where(inArray(polls.id, pollsToSoftDelete));
@@ -86,7 +76,6 @@ export default async function handler(
   const pollIdsToDelete = pollsToDelete.map(({ id }) => id);
 
   if (pollIdsToDelete.length !== 0) {
-    // Delete in order: comments, votes, participants, options, polls
     await db
       .delete(comments)
       .where(inArray(comments.pollId, pollIdsToDelete));
@@ -95,12 +84,17 @@ export default async function handler(
       .delete(participants)
       .where(inArray(participants.pollId, pollIdsToDelete));
     await db.delete(options).where(inArray(options.pollId, pollIdsToDelete));
-    // Hard delete polls (bypassing soft delete)
     await db.delete(polls).where(inArray(polls.id, pollIdsToDelete));
   }
 
-  res.status(200).json({
-    softDeleted: softDeletedCount,
-    deleted: pollIdsToDelete.length,
-  });
-}
+  return new Response(
+    JSON.stringify({
+      softDeleted: softDeletedCount,
+      deleted: pollIdsToDelete.length,
+    }),
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    },
+  );
+};

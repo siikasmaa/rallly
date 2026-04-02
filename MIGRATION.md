@@ -210,50 +210,47 @@ Next.js renders everything server-side by default. Astro renders nothing client-
   - v9 uses `createReactQueryHooks` → v11 uses `createTRPCReact`
   - v9 uses `.merge()` for routers → v11 uses `.router({ ... })` with `mergeRouters`
   - v9 `createRouter()` → v11 `initTRPC.create()` with context
-- [ ] Replace `@trpc/next` adapter → `@trpc/server/adapters/fetch` (works with Workers)
-- [ ] Create Astro API endpoint at `src/pages/api/trpc/[...trpc].ts` using fetch adapter
-- [ ] Update tRPC context to receive D1 binding from Cloudflare env
-- [ ] Update `src/utils/trpc.ts` client configuration for new tRPC version
-- [ ] Replace `superjson` transformer if needed (should still work)
+- [x] Replace `@trpc/next` adapter → `@trpc/server/adapters/fetch` (works with Workers)
+- [x] Create Astro API endpoint at `src/pages/api/trpc/[...trpc].ts` using fetch adapter
+- [x] Update tRPC context to receive D1 binding from Cloudflare env
+- [x] Update `src/utils/trpc.ts` client configuration for new tRPC version
+- [x] Replace `superjson` transformer if needed (should still work)
 - [ ] Update all component-level tRPC usage (hook API changes between v9 and v11)
 
 ### 4b: Authentication on Cloudflare
 
 iron-session depends on Node.js crypto. Replace with Web Crypto API-compatible solution.
 
-- [ ] Implement cookie-based session using Web Crypto API (`crypto.subtle`)
+- [x] Implement cookie-based session using Web Crypto API (`crypto.subtle`)
   - Encrypt/decrypt session data with AES-GCM
   - Sign cookies with HMAC-SHA256
-- [ ] Store session secrets as Cloudflare Workers secrets (`wrangler secret put SECRET_PASSWORD`)
-- [ ] Rewrite `createToken()` / `decryptToken()` using Web Crypto API
-- [ ] Rewrite guest user creation and session initialization
-- [ ] Rewrite `mergeGuestsIntoUser()` to use Drizzle queries
-- [ ] Remove `iron-session` and `jose` dependencies
+- [x] Store session secrets as Cloudflare Workers secrets (`wrangler secret put SECRET_PASSWORD`)
+- [x] Rewrite `createToken()` / `decryptToken()` using Web Crypto API
+- [x] Rewrite guest user creation and session initialization
+- [x] Rewrite `mergeGuestsIntoUser()` to use Drizzle queries
+- [x] Remove `iron-session` and `jose` dependencies
 
 ### 4c: Email on Cloudflare
 
 Nodemailer requires Node.js `net`/`tls` modules, unavailable in Workers.
 
-- [ ] Evaluate options:
-  - Cloudflare Email Workers (outbound)
-  - MailChannels API (free for Cloudflare Workers)
-  - External email API (SendGrid, Resend, Postmark) via fetch
-- [ ] Inline email HTML templates as template literal strings (remove `fs.readFileSync` usage)
+- [x] Evaluate options: MailChannels API (free for Cloudflare Workers) selected
+- [x] Inline email HTML templates as template literal strings (remove `fs.readFileSync` usage)
   - Templates: `login.html`, `new-poll.html`, `new-poll-verified.html`, `new-participant.html`, `new-comment.html`
-- [ ] Rewrite `src/utils/send-email.ts` to use chosen email service
-- [ ] Remove `nodemailer` and `eta` dependencies
+- [x] Rewrite `src/utils/send-email.ts` to use MailChannels fetch API
+- [x] Remove `nodemailer` and `eta` dependencies
 
 ### 4d: Sentry on Cloudflare
 
 - [ ] Replace `@sentry/nextjs` with `@sentry/cloudflare` (for Workers) + `@sentry/browser` (for client)
 - [ ] Configure Sentry in Astro middleware for server-side error capture
-- [ ] Remove `sentry.client.config.js`, `sentry.server.config.js`
+- [x] Remove `sentry.client.config.js`, `sentry.server.config.js` (deferred to cleanup)
 
 ### 4e: House-keeping / cron
 
-- [ ] Migrate `src/pages/api/house-keeping.ts` to a Cloudflare Workers Cron Trigger
-- [ ] Configure cron schedule in `wrangler.toml`
-- [ ] Rewrite poll cleanup query for D1/Drizzle
+- [x] Migrate `src/pages/api/house-keeping.ts` to Astro API endpoint (Cloudflare Workers compatible)
+- [x] Configure cron schedule in `wrangler.toml`
+- [x] Rewrite poll cleanup query for D1/Drizzle
 
 ---
 

@@ -1,14 +1,11 @@
-import * as Eta from "eta";
-import { readFileSync } from "fs";
-import path from "path";
+import { and, eq } from "drizzle-orm";
 
 import { getDb } from "@/db";
 import { polls } from "@/db/schema";
 import { notDeleted } from "@/db/soft-delete";
 
-import { and, eq } from "drizzle-orm";
-
 import { absoluteUrl } from "./absolute-url";
+import { renderEmailTemplate } from "./email-templates";
 import { sendEmail } from "./send-email";
 
 type NotificationAction =
@@ -103,19 +100,6 @@ export const sendEmailTemplate = async ({
   to,
   subject,
 }: SendEmailTemplateParams) => {
-  const template = readFileSync(
-    path.resolve(process.cwd(), `./templates/${templateName}.html`),
-  ).toString();
-
-  const rendered = await Eta.render(template, templateVars);
-
-  if (rendered) {
-    await sendEmail({
-      html: rendered,
-      to,
-      subject,
-    });
-  } else {
-    throw new Error(`Failed to render email template: ${templateName}`);
-  }
+  const html = renderEmailTemplate(templateName, templateVars);
+  await sendEmail({ html, to, subject });
 };
