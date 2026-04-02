@@ -1,8 +1,10 @@
+import { eq, inArray } from "drizzle-orm";
 import { IronSessionOptions, sealData, unsealData } from "iron-session";
 import { withIronSessionApiRoute, withIronSessionSsr } from "iron-session/next";
 import { GetServerSideProps, NextApiHandler } from "next";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { comments, participants } from "@/db/schema";
 
 import { randomid } from "./nanoid";
 
@@ -74,25 +76,15 @@ export const mergeGuestsIntoUser = async (
   userId: string,
   guestIds: string[],
 ) => {
-  await prisma.participant.updateMany({
-    where: {
-      userId: {
-        in: guestIds,
-      },
-    },
-    data: {
-      userId: userId,
-    },
-  });
+  const db = getDb();
 
-  await prisma.comment.updateMany({
-    where: {
-      userId: {
-        in: guestIds,
-      },
-    },
-    data: {
-      userId: userId,
-    },
-  });
+  await db
+    .update(participants)
+    .set({ userId })
+    .where(inArray(participants.userId, guestIds));
+
+  await db
+    .update(comments)
+    .set({ userId })
+    .where(inArray(comments.userId, guestIds));
 };

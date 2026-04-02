@@ -1,7 +1,10 @@
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { polls } from "@/db/schema";
+import { notDeleted } from "@/db/soft-delete";
 
 import { absoluteUrl } from "../../../utils/absolute-url";
 import { sendEmailTemplate } from "../../../utils/api-utils";
@@ -19,9 +22,8 @@ export const verification = createRouter()
       code: z.string(),
     }),
     resolve: async ({ ctx, input }) => {
-      const { pollId } = await decryptToken<{
-        pollId: string;
-      }>(input.code);
+      const db = getDb();
+      const { pollId } = await decryptToken<{ pollId: string }>(input.code);
 
       if (pollId !== input.pollId) {
         throw new TRPCError({
@@ -30,18 +32,20 @@ export const verification = createRouter()
         });
       }
 
-      const poll = await prisma.poll.update({
-        where: {
-          id: pollId,
-        },
-        data: {
-          verified: true,
-        },
-        include: { user: true },
+      await db
+        .update(polls)
+        .set({ verified: true, updatedAt: new Date() })
+        .where(eq(polls.id, pollId));
+
+      const poll = await db.query.polls.findFirst({
+        where: eq(polls.id, pollId),
+        with: { user: true },
       });
 
-      // If logged in as guest, we update all participants
-      // and comments by this guest to the user that we just authenticated
+      if (!poll) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
       if (ctx.session.user?.isGuest) {
         await mergeGuestsIntoUser(poll.user.id, [ctx.session.user.id]);
       }
@@ -59,13 +63,10 @@ export const verification = createRouter()
       adminUrlId: z.string(),
     }),
     resolve: async ({ input: { pollId, adminUrlId } }) => {
-      const poll = await prisma.poll.findUnique({
-        where: {
-          id: pollId,
-        },
-        include: {
-          user: true,
-        },
+      const db = getDb();
+      const poll = await db.query.polls.findFirst({
+        where: and(eq(polls.id, pollId), notDeleted()),
+        with: { user: true },
       });
 
       if (!poll) {
@@ -77,9 +78,7 @@ export const verification = createRouter()
 
       const homePageUrl = absoluteUrl();
       const pollUrl = `${homePageUrl}/admin/${adminUrlId}`;
-      const token = await createToken({
-        pollId,
-      });
+      const token = await createToken({ pollId });
       const verifyEmailUrl = `${pollUrl}?code=${token}`;
 
       await sendEmailTemplate({

@@ -1,7 +1,8 @@
-import { VoteType } from "@prisma/client";
 import dayjs from "dayjs";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { options, participants, polls, users, votes } from "@/db/schema";
+import type { VoteType } from "@/db/schema";
 
 import { nanoid } from "../../../utils/nanoid";
 import { createRouter } from "../../createRouter";
@@ -29,86 +30,94 @@ const optionValues = ["2022-12-14", "2022-12-15", "2022-12-16", "2022-12-17"];
 
 export const demo = createRouter().mutation("create", {
   resolve: async () => {
+    const db = getDb();
     const adminUrlId = await nanoid();
     const demoUser = { name: "John Example", email: "noreply@rallly.co" };
 
-    const options: Array<{ value: string; id: string }> = [];
+    // Upsert demo user
+    let existingUser = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, demoUser.email),
+    });
 
-    for (let i = 0; i < optionValues.length; i++) {
-      options.push({ id: await nanoid(), value: optionValues[i] });
+    if (!existingUser) {
+      const userId = await nanoid();
+      await db.insert(users).values({
+        id: userId,
+        ...demoUser,
+      });
+      existingUser = { id: userId, ...demoUser, createdAt: new Date(), updatedAt: null };
     }
 
-    const participants: Array<{
-      name: string;
+    const pollId = await nanoid();
+    const participantUrlId = await nanoid();
+
+    // Create poll
+    await db.insert(polls).values({
+      id: pollId,
+      title: "Lunch Meeting",
+      type: "date",
+      location: "Starbucks, 901 New York Avenue",
+      description:
+        "Hey everyone, please choose the dates when you are available to meet for our monthly get together. Looking forward to see you all!",
+      authorName: "Johnny",
+      verified: true,
+      demo: true,
+      adminUrlId,
+      participantUrlId,
+      userId: existingUser.id,
+    });
+
+    // Create options
+    const optionRecords: Array<{ id: string; value: string }> = [];
+    for (const value of optionValues) {
+      optionRecords.push({ id: await nanoid(), value });
+    }
+    await db.insert(options).values(
+      optionRecords.map((o) => ({ ...o, pollId })),
+    );
+
+    // Create participants and votes
+    const participantRecords: Array<{
       id: string;
+      name: string;
       userId: string;
+      pollId: string;
       createdAt: Date;
     }> = [];
-
-    const votes: Array<{
+    const voteRecords: Array<{
+      id: string;
       optionId: string;
       participantId: string;
+      pollId: string;
       type: VoteType;
     }> = [];
 
     for (let i = 0; i < participantData.length; i++) {
       const { name, votes: participantVotes } = participantData[i];
       const participantId = await nanoid();
-      participants.push({
+      participantRecords.push({
         id: participantId,
         name,
         userId: "user-demo",
+        pollId,
         createdAt: dayjs()
           .add(i * -1, "minutes")
           .toDate(),
       });
 
-      options.forEach((option, index) => {
-        votes.push({
-          optionId: option.id,
+      for (let j = 0; j < optionRecords.length; j++) {
+        voteRecords.push({
+          id: await nanoid(),
+          optionId: optionRecords[j].id,
           participantId,
-          type: participantVotes[index],
+          pollId,
+          type: participantVotes[j],
         });
-      });
+      }
     }
 
-    await prisma.poll.create({
-      data: {
-        id: await nanoid(),
-        title: "Lunch Meeting",
-        type: "date",
-        location: "Starbucks, 901 New York Avenue",
-        description: `Hey everyone, please choose the dates when you are available to meet for our monthly get together. Looking forward to see you all!`,
-        authorName: "Johnny",
-        verified: true,
-        demo: true,
-        adminUrlId,
-        participantUrlId: await nanoid(),
-        user: {
-          connectOrCreate: {
-            where: {
-              email: demoUser.email,
-            },
-            create: demoUser,
-          },
-        },
-        options: {
-          createMany: {
-            data: options,
-          },
-        },
-        participants: {
-          createMany: {
-            data: participants,
-          },
-        },
-        votes: {
-          createMany: {
-            data: votes,
-          },
-        },
-      },
-    });
+    await db.insert(participants).values(participantRecords);
+    await db.insert(votes).values(voteRecords);
 
     return adminUrlId;
   },

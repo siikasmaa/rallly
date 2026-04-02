@@ -1,4 +1,4 @@
-import { Option, User } from "@prisma/client";
+import type { Option, User } from "@/db/schema";
 
 export type GetPollApiResponse = {
   id: string;

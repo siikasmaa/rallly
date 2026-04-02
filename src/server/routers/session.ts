@@ -1,4 +1,7 @@
-import { prisma } from "~/prisma/db";
+import { eq } from "drizzle-orm";
+
+import { getDb } from "@/db";
+import { users } from "@/db/schema";
 
 import { createGuestUser } from "../../utils/auth";
 import { createRouter } from "../createRouter";
@@ -15,8 +18,9 @@ export const session = createRouter()
         return { isGuest: true, id: ctx.session.user.id };
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id: ctx.session.user.id },
+      const db = getDb();
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, ctx.session.user.id),
       });
 
       if (!user) {

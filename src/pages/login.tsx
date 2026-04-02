@@ -12,8 +12,10 @@ import {
   mergeGuestsIntoUser,
   withSessionSsr,
 } from "@/utils/auth";
+import { getDb } from "@/db";
+import { users } from "@/db/schema";
 import { nanoid } from "@/utils/nanoid";
-import { prisma } from "~/prisma/db";
+import { eq } from "drizzle-orm";
 
 const Page: NextPage<{ success: boolean; redirectTo: string }> = ({
   success,
@@ -73,15 +75,20 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
       };
     }
 
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {},
-      create: {
-        id: await nanoid(),
+    const db = getDb();
+    let user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user) {
+      const userId = await nanoid();
+      await db.insert(users).values({
+        id: userId,
         name: email.substring(0, email.indexOf("@")),
         email,
-      },
-    });
+      });
+      user = { id: userId, name: email.substring(0, email.indexOf("@")), email, createdAt: new Date(), updatedAt: null };
+    }
 
     const guestIds: string[] = [];
 

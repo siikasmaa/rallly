@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "TAILWIND_MODE=watch next dev",
-    "postinstall": "bunx prisma generate",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
     "build": "bun run next build",
     "analyze": "ANALYZE=true bun run next build",
     "start": "bun run next start",
@@ -16,7 +17,7 @@
     "@floating-ui/react-dom-interactions": "^0.4.0",
     "@headlessui/react": "^1.5.0",
     "@next/bundle-analyzer": "^12.1.0",
-    "@prisma/client": "^4.1.0",
+    "drizzle-orm": "^0.34.0",
     "@sentry/nextjs": "^7.7.0",
     "@svgr/webpack": "^6.2.1",
     "@tailwindcss/forms": "^0.4.0",
@@ -40,7 +41,6 @@
     "next-i18next": "^10.5.0",
     "next-plausible": "^3.1.9",
     "nodemailer": "^6.7.2",
-    "prisma": "^4.1.0",
     "react": "17.0.2",
     "react-big-calendar": "^0.38.9",
     "react-dom": "17.0.2",
@@ -81,6 +81,7 @@
     "prettier": "^2.3.0",
     "prettier-plugin-tailwindcss": "^0.1.8",
     "tailwindcss": "^3.0.23",
+    "drizzle-kit": "^0.27.0",
     "wait-on": "^6.0.1"
   }
 }

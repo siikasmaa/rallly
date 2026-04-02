@@ -1,4 +1,4 @@
-import { Participant, Vote, VoteType } from "@prisma/client";
+import type { Participant, Vote, VoteType } from "@/db/schema";
 import clsx from "clsx";
 import * as React from "react";
 

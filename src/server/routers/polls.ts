@@ -1,7 +1,10 @@
 import { TRPCError } from "@trpc/server";
+import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { options, polls, users } from "@/db/schema";
+import { notDeleted, softDeletePoll } from "@/db/soft-delete";
 
 import { absoluteUrl } from "../../utils/absolute-url";
 import { sendEmailTemplate } from "../../utils/api-utils";
@@ -14,67 +17,20 @@ import { demo } from "./polls/demo";
 import { participants } from "./polls/participants";
 import { verification } from "./polls/verification";
 
-const defaultSelectFields: {
-  id: true;
-  timeZone: true;
-  title: true;
-  authorName: true;
-  location: true;
-  description: true;
-  createdAt: true;
-  participantUrlId: true;
-  adminUrlId: true;
-  verified: true;
-  closed: true;
-  legacy: true;
-  demo: true;
-  notifications: true;
-  options: {
-    orderBy: {
-      value: "asc";
-    };
-  };
-  user: true;
-} = {
-  id: true,
-  timeZone: true,
-  title: true,
-  authorName: true,
-  location: true,
-  description: true,
-  createdAt: true,
-  participantUrlId: true,
-  adminUrlId: true,
-  verified: true,
-  closed: true,
-  legacy: true,
-  notifications: true,
-  demo: true,
-  options: {
-    orderBy: {
-      value: "asc",
-    },
-  },
-  user: true,
-};
-
 const getPollIdFromAdminUrlId = async (urlId: string) => {
-  const res = await prisma.poll.findUnique({
-    select: {
-      id: true,
-    },
-    where: { adminUrlId: urlId },
+  const db = getDb();
+  const result = await db.query.polls.findFirst({
+    columns: { id: true },
+    where: and(eq(polls.adminUrlId, urlId), notDeleted()),
   });
 
-  if (!res) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-    });
+  if (!result) {
+    throw new TRPCError({ code: "NOT_FOUND" });
   }
-  return res.id;
+  return result.id;
 };
 
-export const polls = createRouter()
+export const pollsRoute = createRouter()
   .merge("demo.", demo)
   .merge("participants.", participants)
   .merge("comments.", comments)
@@ -94,66 +50,75 @@ export const polls = createRouter()
       demo: z.boolean().optional(),
     }),
     resolve: async ({ ctx, input }): Promise<{ urlId: string }> => {
+      const db = getDb();
       const adminUrlId = await nanoid();
-
       let verified = false;
 
       if (ctx.session.user.isGuest === false) {
-        const user = await prisma.user.findUnique({
-          where: { id: ctx.session.user.id },
+        const user = await db.query.users.findFirst({
+          where: eq(users.id, ctx.session.user.id),
         });
-
-        // If user is logged in with the same email address
         if (user?.email === input.user.email) {
           verified = true;
         }
       }
 
-      const poll = await prisma.poll.create({
-        data: {
-          id: await nanoid(),
-          title: input.title,
-          type: input.type,
-          timeZone: input.timeZone,
-          location: input.location,
-          description: input.description,
-          authorName: input.user.name,
-          demo: input.demo,
-          verified: verified,
-          adminUrlId,
-          participantUrlId: await nanoid(),
-          user: {
-            connectOrCreate: {
-              where: {
-                email: input.user.email,
-              },
-              create: {
-                id: await nanoid(),
-                ...input.user,
-              },
-            },
-          },
-          options: {
-            createMany: {
-              data: input.options.map((value) => ({
-                value,
-              })),
-            },
-          },
-        },
+      // Upsert user: find or create
+      let existingUser = await db.query.users.findFirst({
+        where: eq(users.email, input.user.email),
       });
+
+      if (!existingUser) {
+        const userId = await nanoid();
+        await db.insert(users).values({
+          id: userId,
+          name: input.user.name,
+          email: input.user.email,
+        });
+        existingUser = { id: userId, name: input.user.name, email: input.user.email, createdAt: new Date(), updatedAt: null };
+      }
+
+      const pollId = await nanoid();
+      const participantUrlId = await nanoid();
+
+      await db.insert(polls).values({
+        id: pollId,
+        title: input.title,
+        type: input.type,
+        timeZone: input.timeZone ?? null,
+        location: input.location ?? null,
+        description: input.description ?? null,
+        authorName: input.user.name,
+        demo: input.demo ?? false,
+        verified,
+        adminUrlId,
+        participantUrlId,
+        userId: existingUser.id,
+      });
+
+      // Create options
+      if (input.options.length > 0) {
+        const optionValues = await Promise.all(
+          input.options.map(async (value) => ({
+            id: await nanoid(),
+            value,
+            pollId,
+          })),
+        );
+        await db.insert(options).values(optionValues);
+      }
 
       const homePageUrl = absoluteUrl();
       const pollUrl = `${homePageUrl}/admin/${adminUrlId}`;
 
       try {
-        if (poll.verified) {
+        if (verified) {
           await sendEmailTemplate({
             templateName: "new-poll-verified",
             to: input.user.email,
-            subject: `Rallly: ${poll.title}`,
+            subject: `Rallly: ${input.title}`,
             templateVars: {
-              title: poll.title,
+              title: input.title,
               name: input.user.name,
               pollUrl,
               homePageUrl,
@@ -161,17 +126,15 @@ export const polls = createRouter()
             },
           });
         } else {
-          const verificationCode = await createToken({
-            pollId: poll.id,
-          });
+          const verificationCode = await createToken({ pollId });
           const verifyEmailUrl = `${pollUrl}?code=${verificationCode}`;
 
           await sendEmailTemplate({
             templateName: "new-poll",
             to: input.user.email,
-            subject: `Rallly: ${poll.title} - Verify your email address`,
+            subject: `Rallly: ${input.title} - Verify your email address`,
             templateVars: {
-              title: poll.title,
+              title: input.title,
               name: input.user.name,
               pollUrl,
               verifyEmailUrl,
@@ -193,29 +156,47 @@ export const polls = createRouter()
       admin: z.boolean(),
     }),
     resolve: async ({ input, ctx }): Promise<GetPollApiResponse> => {
-      const poll = await prisma.poll.findFirst({
-        select: defaultSelectFields,
-        where: input.admin
-          ? {
-              adminUrlId: input.urlId,
-            }
-          : {
-              participantUrlId: input.urlId,
-            },
+      const db = getDb();
+      const condition = input.admin
+        ? eq(polls.adminUrlId, input.urlId)
+        : eq(polls.participantUrlId, input.urlId);
+
+      const poll = await db.query.polls.findFirst({
+        where: and(condition, notDeleted()),
+        with: {
+          options: { orderBy: [asc(options.value)] },
+          user: true,
+        },
       });
 
       if (!poll) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-        });
+        throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      // We want to keep the adminUrlId in if the user is view
+      const result = {
+        id: poll.id,
+        timeZone: poll.timeZone,
+        title: poll.title,
+        authorName: poll.authorName,
+        location: poll.location,
+        description: poll.description,
+        createdAt: poll.createdAt,
+        participantUrlId: poll.participantUrlId,
+        adminUrlId: poll.adminUrlId,
+        verified: poll.verified,
+        closed: poll.closed,
+        legacy: poll.legacy,
+        demo: poll.demo,
+        notifications: poll.notifications,
+        options: poll.options,
+        user: poll.user,
+      };
+
       if (!input.admin && ctx.session.user?.id !== poll.user.id) {
-        return { ...poll, admin: input.admin, adminUrlId: "" };
+        return { ...result, admin: input.admin, adminUrlId: "" };
       }
 
-      return { ...poll, admin: input.admin };
+      return { ...result, admin: input.admin };
     },
   })
   .mutation("update", {
@@ -231,44 +212,78 @@ export const polls = createRouter()
       closed: z.boolean().optional(),
     }),
     resolve: async ({ input }): Promise<GetPollApiResponse> => {
+      const db = getDb();
       const pollId = await getPollIdFromAdminUrlId(input.urlId);
 
       if (input.optionsToDelete && input.optionsToDelete.length > 0) {
-        await prisma.option.deleteMany({
-          where: {
-            pollId,
-            id: {
-              in: input.optionsToDelete,
-            },
-          },
-        });
+        const { inArray } = await import("drizzle-orm");
+        await db
+          .delete(options)
+          .where(
+            and(
+              eq(options.pollId, pollId),
+              inArray(options.id, input.optionsToDelete),
+            ),
+          );
       }
 
       if (input.optionsToAdd && input.optionsToAdd.length > 0) {
-        await prisma.option.createMany({
-          data: input.optionsToAdd.map((optionValue) => ({
-            value: optionValue,
+        const newOptions = await Promise.all(
+          input.optionsToAdd.map(async (value) => ({
+            id: await nanoid(),
+            value,
             pollId,
           })),
-        });
+        );
+        await db.insert(options).values(newOptions);
       }
 
-      const poll = await prisma.poll.update({
-        select: defaultSelectFields,
-        where: {
-          id: pollId,
-        },
-        data: {
-          title: input.title,
-          location: input.location,
-          description: input.description,
-          timeZone: input.timeZone,
-          notifications: input.notifications,
-          closed: input.closed,
+      const updateData: Record<string, unknown> = {
+        updatedAt: new Date(),
+      };
+      if (input.title !== undefined) updateData.title = input.title;
+      if (input.location !== undefined) updateData.location = input.location;
+      if (input.description !== undefined)
+        updateData.description = input.description;
+      if (input.timeZone !== undefined) updateData.timeZone = input.timeZone;
+      if (input.notifications !== undefined)
+        updateData.notifications = input.notifications;
+      if (input.closed !== undefined) updateData.closed = input.closed;
+
+      await db.update(polls).set(updateData).where(eq(polls.id, pollId));
+
+      // Fetch updated poll
+      const poll = await db.query.polls.findFirst({
+        where: eq(polls.id, pollId),
+        with: {
+          options: { orderBy: [asc(options.value)] },
+          user: true,
         },
       });
 
-      return { ...poll, admin: true };
+      if (!poll) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return {
+        id: poll.id,
+        timeZone: poll.timeZone,
+        title: poll.title,
+        authorName: poll.authorName,
+        location: poll.location,
+        description: poll.description,
+        createdAt: poll.createdAt,
+        participantUrlId: poll.participantUrlId,
+        adminUrlId: poll.adminUrlId,
+        verified: poll.verified,
+        closed: poll.closed,
+        legacy: poll.legacy,
+        demo: poll.demo,
+        notifications: poll.notifications,
+        options: poll.options,
+        user: poll.user,
+        admin: true,
+      };
     },
   })
   .mutation("delete", {
@@ -277,7 +292,7 @@ export const polls = createRouter()
     }),
     resolve: async ({ input: { urlId } }) => {
       const pollId = await getPollIdFromAdminUrlId(urlId);
-      await prisma.poll.delete({ where: { id: pollId } });
+      await softDeletePoll(getDb(), pollId);
     },
   })
   .mutation("touch", {
@@ -285,13 +300,13 @@ export const polls = createRouter()
       pollId: z.string(),
     }),
     resolve: async ({ input: { pollId } }) => {
-      await prisma.poll.update({
-        where: {
-          id: pollId,
-        },
-        data: {
-          touchedAt: new Date(),
-        },
-      });
+      const db = getDb();
+      await db
+        .update(polls)
+        .set({ touchedAt: new Date() })
+        .where(eq(polls.id, pollId));
     },
   });
+
+// Re-export as "polls" for backward compatibility with router merging
+export { pollsRoute as polls };

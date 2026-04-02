@@ -1,4 +1,4 @@
-import { Option } from "@prisma/client";
+import type { Option } from "@/db/schema";
 import dayjs from "dayjs";
 
 import {

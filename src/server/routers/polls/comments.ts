@@ -1,23 +1,23 @@
+import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { comments } from "@/db/schema";
 
+import { nanoid } from "../../../utils/nanoid";
 import { sendNotification } from "../../../utils/api-utils";
 import { createRouter } from "../../createRouter";
 
-export const comments = createRouter()
+export const commentsRoute = createRouter()
   .query("list", {
     input: z.object({
       pollId: z.string(),
     }),
     resolve: async ({ input: { pollId } }) => {
-      return await prisma.comment.findMany({
-        where: { pollId },
-        orderBy: [
-          {
-            createdAt: "asc",
-          },
-        ],
+      const db = getDb();
+      return await db.query.comments.findMany({
+        where: eq(comments.pollId, pollId),
+        orderBy: [asc(comments.createdAt)],
       });
     },
   })
@@ -28,20 +28,25 @@ export const comments = createRouter()
       content: z.string(),
     }),
     resolve: async ({ ctx, input: { pollId, authorName, content } }) => {
+      const db = getDb();
       const user = ctx.session.user;
+      const commentId = await nanoid();
 
-      const newComment = await prisma.comment.create({
-        data: {
-          content,
-          pollId,
-          authorName,
-          userId: user.id,
-        },
+      await db.insert(comments).values({
+        id: commentId,
+        content,
+        pollId,
+        authorName,
+        userId: user.id,
+      });
+
+      const newComment = await db.query.comments.findFirst({
+        where: eq(comments.id, commentId),
       });
 
       await sendNotification(pollId, {
         type: "newComment",
-        authorName: newComment.authorName,
+        authorName,
       });
 
       return newComment;
@@ -53,13 +58,13 @@ export const comments = createRouter()
       commentId: z.string(),
     }),
     resolve: async ({ input: { pollId, commentId } }) => {
-      await prisma.comment.delete({
-        where: {
-          id_pollId: {
-            id: commentId,
-            pollId,
-          },
-        },
-      });
+      const db = getDb();
+      await db
+        .delete(comments)
+        .where(
+          and(eq(comments.id, commentId), eq(comments.pollId, pollId)),
+        );
     },
   });
+
+export { commentsRoute as comments };

@@ -2,7 +2,11 @@ import * as Eta from "eta";
 import { readFileSync } from "fs";
 import path from "path";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { polls } from "@/db/schema";
+import { notDeleted } from "@/db/soft-delete";
+
+import { and, eq } from "drizzle-orm";
 
 import { absoluteUrl } from "./absolute-url";
 import { sendEmail } from "./send-email";
@@ -22,10 +26,12 @@ export const sendNotification = async (
   action: NotificationAction,
 ): Promise<void> => {
   try {
-    const poll = await prisma.poll.findUnique({
-      where: { id: pollId },
-      include: { user: true },
+    const db = getDb();
+    const poll = await db.query.polls.findFirst({
+      where: and(eq(polls.id, pollId), notDeleted()),
+      with: { user: true },
     });
+
     /**
      * poll needs to:
      * - exist

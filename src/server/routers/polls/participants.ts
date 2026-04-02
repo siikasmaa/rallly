@@ -1,31 +1,26 @@
+import { and, asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { prisma } from "~/prisma/db";
+import { getDb } from "@/db";
+import { participants, votes } from "@/db/schema";
 
+import { nanoid } from "../../../utils/nanoid";
 import { sendNotification } from "../../../utils/api-utils";
 import { createRouter } from "../../createRouter";
 
-export const participants = createRouter()
+export const participantsRoute = createRouter()
   .query("list", {
     input: z.object({
       pollId: z.string(),
     }),
     resolve: async ({ input: { pollId } }) => {
-      const participants = await prisma.participant.findMany({
-        where: {
-          pollId,
-        },
-        include: {
-          votes: true,
-        },
-        orderBy: [
-          {
-            createdAt: "asc",
-          },
-          { name: "desc" },
-        ],
+      const db = getDb();
+      const result = await db.query.participants.findMany({
+        where: eq(participants.pollId, pollId),
+        with: { votes: true },
+        orderBy: [asc(participants.createdAt), desc(participants.name)],
       });
-      return participants;
+      return result;
     },
   })
   .mutation("delete", {
@@ -34,14 +29,15 @@ export const participants = createRouter()
       participantId: z.string(),
     }),
     resolve: async ({ input: { participantId, pollId } }) => {
-      await prisma.participant.delete({
-        where: {
-          id_pollId: {
-            id: participantId,
-            pollId: pollId,
-          },
-        },
-      });
+      const db = getDb();
+      await db
+        .delete(participants)
+        .where(
+          and(
+            eq(participants.id, participantId),
+            eq(participants.pollId, pollId),
+          ),
+        );
     },
   })
   .mutation("add", {
@@ -55,31 +51,39 @@ export const participants = createRouter()
         })
         .array(),
     }),
-    resolve: async ({ ctx, input: { pollId, votes, name } }) => {
+    resolve: async ({ ctx, input: { pollId, votes: voteInputs, name } }) => {
+      const db = getDb();
       const user = ctx.session.user;
-      const participant = await prisma.participant.create({
-        data: {
-          pollId: pollId,
-          name: name,
-          userId: user.id,
-          votes: {
-            createMany: {
-              data: votes.map(({ optionId, type }) => ({
-                optionId,
-                type,
-                pollId: pollId,
-              })),
-            },
-          },
-        },
-        include: {
-          votes: true,
-        },
+      const participantId = await nanoid();
+
+      await db.insert(participants).values({
+        id: participantId,
+        pollId,
+        name,
+        userId: user.id,
+      });
+
+      if (voteInputs.length > 0) {
+        const voteValues = await Promise.all(
+          voteInputs.map(async ({ optionId, type }) => ({
+            id: await nanoid(),
+            optionId,
+            type,
+            pollId,
+            participantId,
+          })),
+        );
+        await db.insert(votes).values(voteValues);
+      }
+
+      const participant = await db.query.participants.findFirst({
+        where: eq(participants.id, participantId),
+        with: { votes: true },
       });
 
       await sendNotification(pollId, {
         type: "newParticipant",
-        participantName: participant.name,
+        participantName: name,
       });
 
       return participant;
@@ -97,34 +101,53 @@ export const participants = createRouter()
         })
         .array(),
     }),
-    resolve: async ({ input: { pollId, participantId, votes, name } }) => {
-      const participant = await prisma.participant.update({
-        where: {
-          id_pollId: {
-            id: participantId,
-            pollId: pollId,
-          },
-        },
-        data: {
-          votes: {
-            deleteMany: {
-              pollId: pollId,
-            },
-            createMany: {
-              data: votes.map(({ optionId, type }) => ({
-                optionId,
-                type,
-                pollId,
-              })),
-            },
-          },
-          name,
-        },
-        include: {
-          votes: true,
-        },
+    resolve: async ({
+      input: { pollId, participantId, votes: voteInputs, name },
+    }) => {
+      const db = getDb();
+
+      // Update participant name
+      await db
+        .update(participants)
+        .set({ name, updatedAt: new Date() })
+        .where(
+          and(
+            eq(participants.id, participantId),
+            eq(participants.pollId, pollId),
+          ),
+        );
+
+      // Delete existing votes for this participant in this poll
+      await db
+        .delete(votes)
+        .where(
+          and(
+            eq(votes.participantId, participantId),
+            eq(votes.pollId, pollId),
+          ),
+        );
+
+      // Create new votes
+      if (voteInputs.length > 0) {
+        const voteValues = await Promise.all(
+          voteInputs.map(async ({ optionId, type }) => ({
+            id: await nanoid(),
+            optionId,
+            type,
+            pollId,
+            participantId,
+          })),
+        );
+        await db.insert(votes).values(voteValues);
+      }
+
+      const participant = await db.query.participants.findFirst({
+        where: eq(participants.id, participantId),
+        with: { votes: true },
       });
 
       return participant;
     },
   });
+
+export { participantsRoute as participants };

@@ -79,33 +79,33 @@ D1 is SQLite-based. This requires ORM and schema changes.
 
 Drizzle has first-class D1 support; Prisma's D1 adapter is experimental.
 
-- [ ] Install `drizzle-orm` and `drizzle-kit`
-- [ ] Translate Prisma schema (`prisma/schema.prisma`) to Drizzle schema file(s) in `src/db/schema.ts`
+- [x] Install `drizzle-orm` and `drizzle-kit`
+- [x] Translate Prisma schema (`prisma/schema.prisma`) to Drizzle schema file(s) in `src/db/schema.ts`
   - **Models to convert:** User, Poll, Participant, Option, Vote, Comment
   - **Enums:** PollType (date), VoteType (yes, no, ifNeedBe) → SQLite text with CHECK constraints
   - **Note:** D1/SQLite has no `citext` type — implement case-insensitive email via `COLLATE NOCASE` or `lower()` at query time
-- [ ] Rewrite `prisma/middlewares/softDeleteMiddleware.ts` as Drizzle query wrapper or utility functions
+- [x] Rewrite `prisma/middlewares/softDeleteMiddleware.ts` as Drizzle query wrapper or utility functions
   - Intercept Poll deletes → set `deleted = true, deletedAt = now()`
   - Auto-filter `deleted = false` on Poll reads
 - [ ] Create D1 migration files via `drizzle-kit generate`
-- [ ] Create `src/db/index.ts` — Drizzle client factory that accepts D1 binding
-- [ ] Remove Prisma dependencies (`prisma`, `@prisma/client`)
+- [x] Create `src/db/index.ts` — Drizzle client factory that accepts D1 binding
+- [x] Remove Prisma dependencies (`prisma`, `@prisma/client`)
 - [ ] Remove `prisma/` directory (schema, migrations, middlewares, db.ts)
-- [ ] Remove `postinstall` script (no more `prisma generate`)
+- [x] Remove `postinstall` script (no more `prisma generate`)
 
 ### 2b: Rewrite data access layer
 
 All tRPC routers use Prisma directly. Each must be rewritten.
 
-- [ ] `src/server/routers/polls.ts` — CRUD for polls, options, admin/participant URL lookups
-- [ ] `src/server/routers/polls/participants.ts` — list, add, update, delete participants
-- [ ] `src/server/routers/polls/comments.ts` — list, add, delete comments
-- [ ] `src/server/routers/polls/verification.ts` — poll email verification
-- [ ] `src/server/routers/polls/demo.ts` — demo poll creation
-- [ ] `src/server/routers/session.ts` — session get/destroy
-- [ ] `src/server/routers/login.ts` — login/token procedures
-- [ ] `src/server/routers/user.ts` — user profile updates
-- [ ] `src/pages/api/house-keeping.ts` — cron cleanup (raw SQL delete of old soft-deleted polls)
+- [x] `src/server/routers/polls.ts` — CRUD for polls, options, admin/participant URL lookups
+- [x] `src/server/routers/polls/participants.ts` — list, add, update, delete participants
+- [x] `src/server/routers/polls/comments.ts` — list, add, delete comments
+- [x] `src/server/routers/polls/verification.ts` — poll email verification
+- [x] `src/server/routers/polls/demo.ts` — demo poll creation
+- [x] `src/server/routers/session.ts` — session get/destroy
+- [x] `src/server/routers/login.ts` — login/token procedures (no Prisma usage)
+- [x] `src/server/routers/user.ts` — user profile updates
+- [x] `src/pages/api/house-keeping.ts` — cron cleanup (raw SQL delete of old soft-deleted polls)
 
 ### 2c: Data differences to handle
 

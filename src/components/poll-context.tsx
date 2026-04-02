@@ -1,4 +1,4 @@
-import { Participant, Vote, VoteType } from "@prisma/client";
+import type { Participant, Vote, VoteType } from "@/db/schema";
 import { keyBy } from "lodash";
 import { useTranslation } from "next-i18next";
 import React from "react";
