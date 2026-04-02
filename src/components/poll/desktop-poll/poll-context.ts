@@ -1,5 +1,6 @@
-import noop from "lodash/noop";
 import React from "react";
+
+const noop = () => {};
 
 export const PollContext = React.createContext<{
   activeOptionId: string | null;

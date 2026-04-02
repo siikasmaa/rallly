@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { groupBy } from "lodash";
 import * as React from "react";
 
 import { ParsedDateTimeOpton } from "@/utils/date-time-utils";
@@ -21,7 +20,11 @@ const GroupedOptions: React.VoidFunctionComponent<GroupedOptionsProps> = ({
   group,
   groupClassName,
 }) => {
-  const grouped = groupBy(options, group);
+  const grouped = options.reduce<Record<string, typeof options>>((acc, opt) => {
+    const key = group(opt);
+    (acc[key] ??= []).push(opt);
+    return acc;
+  }, {});
 
   return (
     <div className="select-none divide-y">

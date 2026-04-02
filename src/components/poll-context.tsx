@@ -1,5 +1,4 @@
 import type { Participant, Vote, VoteType } from "@/db/schema";
-import { keyBy } from "lodash";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
@@ -117,9 +116,8 @@ export const PollContextProvider: React.VoidFunctionComponent<{
 
     const optionIds = parsedOptions.options.map(({ optionId }) => optionId);
 
-    const participantById = keyBy(
-      participants,
-      (participant) => participant.id,
+    const participantById = Object.fromEntries(
+      participants.map((participant) => [participant.id, participant]),
     );
 
     const participantsByOptionId: Record<string, Participant[]> = {};
