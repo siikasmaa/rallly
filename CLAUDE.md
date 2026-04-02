@@ -4,84 +4,92 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Rallly is a self-hosted doodle poll alternative for scheduling meetings. Built with Next.js 12, Prisma, tRPC, and TailwindCSS. Licensed under AGPLv3.
+Rallly is a scheduling tool (doodle poll alternative) for group meetings. Built with Astro, React, Drizzle ORM, tRPC, and TailwindCSS. Deployed on Cloudflare Workers/Pages with D1 database. Licensed under AGPLv3.
 
 ## Common Commands
 
 ```bash
-yarn dev              # Start dev server (with Tailwind watch mode)
-yarn build            # Production build
-yarn start            # Run production server
-yarn lint             # ESLint
-yarn lint:tsc         # TypeScript type checking
-yarn test             # Run Playwright E2E tests
-yarn prisma migrate deploy   # Apply database migrations
-yarn prisma generate         # Regenerate Prisma client (also runs on postinstall)
+bun install           # Install dependencies
+bun run dev           # Start Astro dev server (port 4321)
+bun run build         # Production build
+bun run preview       # Preview production build
+bun run lint          # ESLint
+bun run lint:tsc      # Astro check + TypeScript type checking
+bun run test          # Run Playwright E2E tests
+bun run db:generate   # Generate Drizzle migrations
+bun run db:migrate    # Apply Drizzle migrations
 ```
 
-Playwright requires browser install first: `yarn playwright install --with-deps chromium`
+Playwright requires browser install first: `bunx playwright install --with-deps chromium`
 
 ## Architecture
 
-**Single Next.js app** (not a monorepo). All source code is in `src/`.
+**Astro app** with React islands for interactivity. Deployed on Cloudflare Pages + Workers.
 
 ### Path Aliases
 - `@/*` maps to `src/*`
 - `~/*` maps to project root ``./*``
 
 ### API Layer (tRPC)
-- All API routes go through a single tRPC handler at `src/pages/api/trpc/[trpc].ts`
+- Astro API endpoint at `src/pages/api/trpc/[...trpc].ts` using fetch adapter
 - Server context (session handling): `src/server/context.ts`
-- Routers: `src/server/routers/` — polls, participants, comments, session, login, user, verification, demo
+- Routers: `src/server/routers/` -- polls, participants, comments, session, login, user, verification, demo
 - Client setup: `src/utils/trpc.ts`
 - Uses SuperJSON for serialization and React Query for client-side caching
 
-### Database (Prisma + PostgreSQL)
-- Schema: `prisma/schema.prisma`
-- Migrations: `prisma/migrations/`
+### Database (Drizzle + Cloudflare D1)
+- Schema: `src/db/schema.ts`
+- Client factory: `src/db/index.ts` (accepts D1 binding)
+- Soft-delete utilities: `src/db/soft-delete.ts`
+- Migration config: `drizzle.config.ts`
 - Models: User, Poll, Participant, Option, Vote, Comment
-- Soft-delete middleware for Polls: `prisma/middlewares/softDeleteMiddleware.ts`
-- Uses `citext` extension for case-insensitive emails
-- Poll has two URL identifiers: `participantUrlId` (public sharing) and `adminUrlId` (admin access)
+- D1 is SQLite-based; uses integer timestamps, text enums, integer booleans
 
 ### Authentication
-- iron-session with encrypted cookies (cookie name: `rallly-session`)
-- Guest user system with session token encryption via `jose`
+- Web Crypto API (AES-GCM) for session encryption
+- Cookie-based sessions (`rallly-session`)
+- Guest user system with encrypted tokens
 - Auth utilities: `src/utils/auth.ts`
-- `SECRET_PASSWORD` env var (min 32 chars) for session encryption
+- `SECRET_PASSWORD` env var (min 32 chars) for encryption key
 
 ### Pages & Rendering
-- SSR pages use `getServerSideProps` for auth checks and translations
-- Heavy interactive components (poll UI) loaded with `dynamic()` and `ssr: false`
-- Key pages: `poll.tsx` (main poll view), `new.tsx` (create poll), `demo.tsx`, `login.tsx`, `profile.tsx`
+- Astro pages in `src/pages/` with file-based routing
+- React components use `client:only="react"` or `client:load` hydration directives
+- Layouts: `src/layouts/BaseLayout.astro`, `src/layouts/AppLayout.astro`
+- Key routes: `/admin/[urlId]`, `/p/[urlId]`, `/new`, `/demo`, `/login`, `/profile`
 
 ### Internationalization
-- next-i18next with 16 locales (en default)
+- Astro built-in i18n with 16 locales (en default)
 - Translation files: `public/locales/{locale}/{namespace}.json`
-- Namespaces: common, app, errors, homepage
 - Locale detection: cookie (NEXT_LOCALE) -> Accept-Language header -> default (en)
-- Pages include translations via `serverSideTranslations(locale, ['common', 'app'])`
+- Middleware handles locale detection in `src/middleware.ts`
 
 ### Email
-- Nodemailer for sending, Eta templates for rendering
-- Email utilities: `src/utils/send-email.ts`
+- MailChannels API (fetch-based, Cloudflare Workers compatible)
+- Inlined HTML templates: `src/utils/email-templates.ts`
+- Send utility: `src/utils/send-email.ts`
 
 ## Environment Variables
 
 Required (see `sample.env`):
-- `DATABASE_URL` — PostgreSQL connection string
-- `SECRET_PASSWORD` — Session encryption key (min 32 chars)
-- `NEXT_PUBLIC_BASE_URL` — App URL (default: http://localhost:3000)
-- `SUPPORT_EMAIL` — FROM address for outgoing emails
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PWD` — Mail server config
+- `SECRET_PASSWORD` -- Session encryption key (min 32 chars)
+- `PUBLIC_BASE_URL` -- App URL (default: http://localhost:4321)
+- `SUPPORT_EMAIL` -- FROM address for outgoing emails
+- `API_SECRET` -- House-keeping endpoint authentication
+
+For Cloudflare deployment, set secrets via `wrangler secret put <NAME>`.
 
 ## Code Style
 
-- TypeScript strict mode enabled (`noUnusedLocals`, `noUnusedParameters`)
-- ESLint with next/core-web-vitals, import sorting (`eslint-plugin-simple-import-sort`)
+- TypeScript strict mode
+- ESLint with import sorting (`eslint-plugin-simple-import-sort`)
 - Prettier with double quotes, trailing commas, 2-space indent
-- TailwindCSS for all styling (with `prettier-plugin-tailwindcss` for class sorting)
+- TailwindCSS for all styling
 
-## Docker
+## Deployment
 
-Multi-stage Dockerfile. `docker-compose.yml` runs the app + PostgreSQL 14.2. Startup script (`docker_start.sh`) runs migrations then starts the server.
+Cloudflare Pages + Workers. Configuration in `wrangler.toml`.
+- Build: `bun run build`
+- Deploy: `wrangler pages deploy ./dist`
+- D1 migrations: `wrangler d1 migrations apply rallly-db`
+- Cron: house-keeping runs daily at 6:00 AM UTC

@@ -14,18 +14,14 @@ database_id = "" # Set after creating: wrangler d1 create rallly-db
 
 # Environment variables (non-secret)
 [vars]
-PUBLIC_BASE_URL = "http://localhost:3000"
+PUBLIC_BASE_URL = "http://localhost:4321"
 SUPPORT_EMAIL = ""
+NODE_ENV = "production"
 
 # Secrets (set via: wrangler secret put <NAME>)
 # SECRET_PASSWORD - Session encryption key (min 32 chars)
-# SMTP_HOST - Mail server host
-# SMTP_PORT - Mail server port
-# SMTP_SECURE - TLS flag
-# SMTP_USER - Mail server user
-# SMTP_PWD - Mail server password
-# SENTRY_DSN - Sentry error tracking DSN
 # API_SECRET - House-keeping endpoint auth
+# SENTRY_DSN - Sentry error tracking DSN
 
 # Cron triggers for house-keeping
 [triggers]
@@ -33,7 +29,7 @@ crons = ["0 6 * * *"] # Daily at 6:00 AM UTC
 
 # Development settings
 [dev]
-port = 3000
+port = 4321
 
 # Production environment overrides
 [env.production]
@@ -41,3 +37,4 @@ name = "rallly-production"
 
 [env.production.vars]
 PUBLIC_BASE_URL = "" # Set to production URL
+NODE_ENV = "production"

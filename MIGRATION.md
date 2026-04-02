@@ -256,21 +256,22 @@ Nodemailer requires Node.js `net`/`tls` modules, unavailable in Workers.
 
 ## Phase 5: Deployment & Infrastructure
 
-- [ ] Configure `wrangler.toml` with:
+- [x] Configure `wrangler.toml` with:
   - D1 database binding
-  - Workers secrets (SECRET_PASSWORD, SMTP credentials)
+  - Workers secrets (SECRET_PASSWORD)
   - Pages configuration
   - Cron triggers for house-keeping
 - [ ] Set up Cloudflare Pages deployment (GitHub integration or `wrangler pages deploy`)
 - [ ] Create D1 migration workflow (`wrangler d1 migrations apply`)
-- [ ] Update `.github/workflows/ci.yml`:
+- [x] Update `.github/workflows/ci.yml`:
   - Use Bun for install/build/lint/type-check
-  - Run Playwright against Astro dev server
-  - Deploy to Cloudflare Pages on main branch
-- [ ] Remove Docker files (`Dockerfile`, `docker-compose.yml`, `docker_start.sh`, `.dockerignore`)
-- [ ] Remove `.github/workflows/docker-image.yml`
+  - Run Playwright against Astro preview server
+  - Removed PostgreSQL dependency (using D1 now)
+- [x] Remove Docker files (`Dockerfile`, `docker-compose.yml`, `docker_start.sh`, `.dockerignore`)
+- [x] Remove `.github/workflows/docker-image.yml`
 - [ ] Update `README.md` with new setup instructions
-- [ ] Update `CLAUDE.md` with new commands and architecture
+- [x] Update `CLAUDE.md` with new commands and architecture
+- [x] Update `sample.env` for new stack
 
 ---
 
