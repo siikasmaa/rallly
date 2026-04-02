@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import Calendar from "@/components/icons/calendar.svg";
@@ -16,8 +16,6 @@ import { useSession } from "./session";
 export const Profile: React.VoidFunctionComponent = () => {
   const { user } = useSession();
   const { locale } = useDayjs();
-
-  const { t } = useTranslation("app");
 
   const [userPolls, setUserPolls] = React.useState<{
     polls: Array<{
@@ -63,7 +61,7 @@ export const Profile: React.VoidFunctionComponent = () => {
             {user.shortName}
           </div>
           <div className="text-slate-500">
-            {user.isGuest ? t("guest") : t("user")}
+            {user.isGuest ? m.app_guest() : m.app_user()}
           </div>
         </div>
       </div>
@@ -72,10 +70,10 @@ export const Profile: React.VoidFunctionComponent = () => {
       {createdPolls ? (
         <div className="card p-0">
           <div className="flex items-center justify-between border-b p-4 shadow-sm">
-            <div className="text-lg text-slate-700">{t("yourPolls")}</div>
+            <div className="text-lg text-slate-700">{m.app_yourPolls()}</div>
             <a href="/new" className="btn-default">
                 <Pencil className="mr-1 h-5" />
-                {t("newPoll")}
+                {m.app_newPoll()}
             </a>
           </div>
           {createdPolls.length > 0 ? (
@@ -101,7 +99,7 @@ export const Profile: React.VoidFunctionComponent = () => {
               </div>
             </div>
           ) : (
-            <EmptyState icon={Pencil} text={t("pollsEmpty")} />
+            <EmptyState icon={Pencil} text={m.app_pollsEmpty()} />
           )}
         </div>
       ) : null}

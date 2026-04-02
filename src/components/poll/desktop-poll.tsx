@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useMeasure } from "react-use";
 
@@ -26,8 +26,6 @@ const MotionButton = motion(Button);
 const minSidebarWidth = 200;
 
 const Poll: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("app");
-
   const { poll, options, targetTimeZone, setTargetTimeZone, userAlreadyVoted } =
     usePoll();
 
@@ -122,7 +120,7 @@ const Poll: React.VoidFunctionComponent = () => {
             <div className="flex h-14 shrink-0 items-center justify-end space-x-4 border-b bg-gray-50 px-4">
               <div className="flex grow items-center">
                 <div className="mr-2 text-sm font-medium text-slate-500">
-                  {t("timeZone")}
+                  {m.app_timeZone()}
                 </div>
                 <TimeZonePicker
                   value={targetTimeZone}
@@ -139,7 +137,7 @@ const Poll: React.VoidFunctionComponent = () => {
                 style={{ width: sidebarWidth }}
               >
                 <div className="flex h-full grow items-end">
-                  {t("participantCount", { count: participants.length })}
+                  {m.app_participantCount({ count: participants.length })}
                 </div>
                 <AnimatePresence initial={false}>
                   {scrollPosition > 0 ? (
@@ -241,7 +239,7 @@ const Poll: React.VoidFunctionComponent = () => {
                       addParticipant.isLoading || updateParticipant.isLoading
                     }
                   >
-                    {t("save")}
+                    {m.app_save()}
                   </Button>
                   <Button
                     onClick={() => {
@@ -252,16 +250,15 @@ const Poll: React.VoidFunctionComponent = () => {
                       }
                     }}
                   >
-                    {t("cancel")}
+                    {m.app_cancel()}
                   </Button>
                   <div className="text-sm">
-                    <Trans
-                      t={t}
-                      i18nKey="saveInstruction"
-                      values={{
-                        save: t("save"),
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: m.app_saveInstruction({
+                          save: m.app_save(),
+                        }),
                       }}
-                      components={{ b: <strong /> }}
                     />
                   </div>
                 </div>
@@ -274,12 +271,12 @@ const Poll: React.VoidFunctionComponent = () => {
                     }}
                     icon={<Plus />}
                   >
-                    {t("addParticipant")}
+                    {m.app_addParticipant()}
                   </Button>
                   {userAlreadyVoted ? (
                     <div className="flex items-center text-sm text-gray-400">
                       <Check className="mr-1 h-5" />
-                      <div>{t("alreadyVoted")}</div>
+                      <div>{m.app_alreadyVoted()}</div>
                     </div>
                   ) : null}
                 </div>

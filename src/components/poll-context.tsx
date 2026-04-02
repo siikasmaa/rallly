@@ -1,5 +1,5 @@
 import type { Participant, Vote, VoteType } from "@/db/schema";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import React from "react";
 
 import Trash from "@/components/icons/trash.svg";
@@ -57,7 +57,6 @@ export const PollContextProvider: React.VoidFunctionComponent<{
   admin: boolean;
   children?: React.ReactNode;
 }> = ({ poll, urlId, admin, children }) => {
-  const { t } = useTranslation("app");
   const { participants } = useParticipants();
   const [isDeleted, setDeleted] = React.useState(false);
   const { user } = useSession();
@@ -176,8 +175,8 @@ export const PollContextProvider: React.VoidFunctionComponent<{
     return (
       <ErrorPage
         icon={Trash}
-        title={t("deletedPoll")}
-        description={t("deletedPollInfo")}
+        title={m.app_deletedPoll()}
+        description={m.app_deletedPollInfo()}
       />
     );
   }

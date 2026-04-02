@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 
@@ -15,7 +15,6 @@ export interface PollDetailsData {
 export const PollDetailsForm: React.VoidFunctionComponent<
   PollFormProps<PollDetailsData>
 > = ({ name, defaultValues, onSubmit, onChange, className }) => {
-  const { t } = useTranslation("app");
   const {
     handleSubmit,
     register,
@@ -40,33 +39,33 @@ export const PollDetailsForm: React.VoidFunctionComponent<
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="formField">
-        <label htmlFor="title">{t("title")}</label>
+        <label htmlFor="title">{m.app_title()}</label>
         <input
           type="text"
           id="title"
           className={clsx("input w-full", {
             "input-error": errors.title,
           })}
-          placeholder={t("titlePlaceholder")}
+          placeholder={m.app_titlePlaceholder()}
           {...register("title", { validate: requiredString })}
         />
       </div>
       <div className="formField">
-        <label htmlFor="location">{t("location")}</label>
+        <label htmlFor="location">{m.app_location()}</label>
         <input
           type="text"
           id="location"
           className="input w-full"
-          placeholder={t("locationPlaceholder")}
+          placeholder={m.app_locationPlaceholder()}
           {...register("location")}
         />
       </div>
       <div className="formField">
-        <label htmlFor="description">{t("description")}</label>
+        <label htmlFor="description">{m.app_description()}</label>
         <textarea
           id="description"
           className="input w-full"
-          placeholder={t("descriptionPlaceholder")}
+          placeholder={m.app_descriptionPlaceholder()}
           rows={5}
           {...register("description")}
         />

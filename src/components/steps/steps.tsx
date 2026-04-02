@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import React from "react";
 
 export interface StepsProps {
@@ -13,12 +13,10 @@ const Steps: React.VoidFunctionComponent<StepsProps> = ({
   total,
   className,
 }) => {
-  const { t } = useTranslation("app");
-
   return (
     <div className={clsx("inline-flex items-center", className)}>
       <div className="text-sm font-medium tracking-tight">
-        {t("stepSummary", {
+        {m.app_stepSummary({
           current: current + 1,
           total,
         })}

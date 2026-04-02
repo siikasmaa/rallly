@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import React from "react";
 
 import Menu from "@/components/icons/menu.svg";
@@ -40,7 +40,6 @@ const MobileNavigation: React.VoidFunctionComponent<{
   openLoginModal: () => void;
 }> = ({ openLoginModal }) => {
   const { user } = useSession();
-  const { t } = useTranslation(["common", "app"]);
   return (
     <div
       className="fixed top-0 z-40 flex h-12 w-full shrink-0 items-center justify-between border-b bg-gray-50
@@ -56,7 +55,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
             className="flex w-full cursor-pointer items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
           >
             <Login className="h-5 opacity-75" />
-            <span className="inline-block">{t("app:login")}</span>
+            <span className="inline-block">{m.app_login()}</span>
           </button>
         )}
         <AnimatePresence initial={false}>
@@ -95,7 +94,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
             >
               <Adjustments className="h-5 opacity-75 group-hover:text-primary-500" />
               <span className="ml-2 hidden sm:block">
-                {t("app:preferences")}
+                {m.app_preferences()}
               </span>
             </button>
           }
@@ -110,7 +109,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
               className="group flex items-center rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
             >
               <Menu className="w-5 group-hover:text-primary-500" />
-              <span className="ml-2 hidden sm:block">{t("app:menu")}</span>
+              <span className="ml-2 hidden sm:block">{m.app_menu()}</span>
             </button>
           }
         >
@@ -124,12 +123,11 @@ const MobileNavigation: React.VoidFunctionComponent<{
 const AppMenu: React.VoidFunctionComponent<{ className?: string }> = ({
   className,
 }) => {
-  const { t } = useTranslation(["common", "app"]);
   return (
     <div className={clsx("space-y-1", className)}>
       <a href="/new" className="flex cursor-pointer items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 pr-4 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
           <Pencil className="h-5 opacity-75 " />
-          <span className="inline-block">{t("app:newPoll")}</span>
+          <span className="inline-block">{m.app_newPoll()}</span>
       </a>
       <a
         target="_blank"
@@ -138,7 +136,7 @@ const AppMenu: React.VoidFunctionComponent<{ className?: string }> = ({
         rel="noreferrer"
       >
         <Support className="h-5 opacity-75" />
-        <span className="inline-block">{t("common:support")}</span>
+        <span className="inline-block">{m.common_support()}</span>
       </a>
     </div>
   );
@@ -148,7 +146,6 @@ const UserDropdown: React.VoidFunctionComponent<
   DropdownProps & { openLoginModal: () => void }
 > = ({ children, openLoginModal, ...forwardProps }) => {
   const { logout, user } = useSession();
-  const { t } = useTranslation(["common", "app"]);
   const modalContext = useModalContext();
   if (!user) {
     return null;
@@ -159,7 +156,7 @@ const UserDropdown: React.VoidFunctionComponent<
       {user.isGuest ? (
         <DropdownItem
           icon={Question}
-          label={t("app:whatsThis")}
+          label={m.app_whatsThis()}
           onClick={() => {
             modalContext.render({
               showClose: true,
@@ -178,14 +175,14 @@ const UserDropdown: React.VoidFunctionComponent<
                       </div>
                     </div>
                   </div>
-                  <p>{t("app:guestSessionNotice")}</p>
+                  <p>{m.app_guestSessionNotice()}</p>
                   <div>
                     <a
                       href="https://support.rallly.co/guest-sessions"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {t("app:guestSessionReadMore")}
+                      {m.app_guestSessionReadMore()}
                     </a>
                   </div>
                 </div>
@@ -200,31 +197,31 @@ const UserDropdown: React.VoidFunctionComponent<
         <DropdownItem
           href="/profile"
           icon={User}
-          label={t("app:yourProfile")}
+          label={m.app_yourProfile()}
         />
       ) : null}
       {user.isGuest ? (
         <DropdownItem
           icon={Login}
-          label={t("app:login")}
+          label={m.app_login()}
           onClick={openLoginModal}
         />
       ) : null}
       <DropdownItem
         icon={Logout}
-        label={user.isGuest ? t("app:forgetMe") : t("app:logout")}
+        label={user.isGuest ? m.app_forgetMe() : m.app_logout()}
         onClick={() => {
           if (user?.isGuest) {
             modalContext.render({
-              title: t("app:areYouSure"),
-              description: t("app:endingGuestSessionNotice"),
+              title: m.app_areYouSure(),
+              description: m.app_endingGuestSessionNotice(),
 
               onOk: logout,
               okButtonProps: {
                 type: "danger",
               },
-              okText: t("app:endSession"),
-              cancelText: t("app:cancel"),
+              okText: m.app_endSession(),
+              cancelText: m.app_cancel(),
             });
           } else {
             logout();
@@ -239,7 +236,6 @@ const StandardLayout: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children, ...rest }) => {
   const { user } = useSession();
-  const { t } = useTranslation(["common", "app"]);
   const [loginModal, openLoginModal] = useModal({
     footer: null,
     overlayClosable: true,
@@ -264,7 +260,7 @@ const StandardLayout: React.VoidFunctionComponent<{
               <div className="mb-4">
                 <a href="/new" className="group mb-1 flex items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20">
                     <Pencil className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
-                    <span className="grow text-left">{t("app:newPoll")}</span>
+                    <span className="grow text-left">{m.app_newPoll()}</span>
               </a>
                 <a
                   target="_blank"
@@ -273,7 +269,7 @@ const StandardLayout: React.VoidFunctionComponent<{
                   rel="noreferrer"
                 >
                   <Support className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
-                  <span className="grow text-left">{t("common:support")}</span>
+                  <span className="grow text-left">{m.common_support()}</span>
                 </a>
                 <Popover
                   placement="right-start"
@@ -281,7 +277,7 @@ const StandardLayout: React.VoidFunctionComponent<{
                     <button className="group flex w-full items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20">
                       <Adjustments className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
                       <span className="grow text-left">
-                        {t("app:preferences")}
+                        {m.app_preferences()}
                       </span>
                       <DotsVertical className="h-4 text-slate-500 opacity-0 transition-opacity group-hover:opacity-100" />
                     </button>
@@ -295,7 +291,7 @@ const StandardLayout: React.VoidFunctionComponent<{
                     className="group flex w-full items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20"
                   >
                     <Login className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
-                    <span className="grow text-left">{t("app:login")}</span>
+                    <span className="grow text-left">{m.app_login()}</span>
                   </button>
                 )}
               </div>
@@ -325,7 +321,7 @@ const StandardLayout: React.VoidFunctionComponent<{
                               {user.shortName}
                             </div>
                             <div className="truncate text-xs text-slate-500">
-                              {user.isGuest ? t("app:guest") : t("app:user")}
+                              {user.isGuest ? m.app_guest() : m.app_user()}
                             </div>
                           </div>
                           <DotsVertical className="h-4 text-slate-500 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -355,13 +351,13 @@ const StandardLayout: React.VoidFunctionComponent<{
                   className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
                   rel="noreferrer"
                 >
-                  {t("common:support")}
+                  {m.common_support()}
                 </a>
                 <a href="https://github.com/lukevella/rallly/discussions" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                    {t("common:discussions")}
+                    {m.common_discussions()}
                 </a>
                 <a href="https://blog.rallly.co" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                    {t("common:blog")}
+                    {m.common_blog()}
                 </a>
                 <div className="hidden text-slate-300 lg:block">&bull;</div>
                 <div className="flex items-center space-x-6">
@@ -391,7 +387,7 @@ const StandardLayout: React.VoidFunctionComponent<{
                 className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors hover:bg-primary-500 hover:text-white hover:no-underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 active:bg-primary-600"
               >
                 <Cash className="mr-1 inline-block w-5" />
-                <span>{t("app:donate")}</span>
+                <span>{m.app_donate()}</span>
               </a>
             </div>
           </div>

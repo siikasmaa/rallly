@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -27,7 +27,6 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
   HTMLFormElement,
   ParticipantRowFormProps
 > = ({ defaultValues, onSubmit, className, onCancel }, ref) => {
-  const { t } = useTranslation("app");
   const {
     columnWidth,
     scrollPosition,
@@ -92,7 +91,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
                 className={clsx("w-full", {
                   "input-error": errors.name && submitCount > 0,
                 })}
-                placeholder={t("yourName")}
+                placeholder={m.app_yourName()}
                 {...field}
                 onKeyDown={(e) => {
                   if (e.code === "Tab" && scrollPosition > 0) {

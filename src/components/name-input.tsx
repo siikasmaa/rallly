@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import UserAvatar from "./poll/user-avatar";
@@ -17,7 +17,6 @@ const NameInput: React.ForwardRefRenderFunction<
   HTMLInputElement,
   NameInputProps
 > = ({ value, defaultValue, className, ...forwardProps }, ref) => {
-  const { t } = useTranslation("app");
   return (
     <div className="relative flex items-center">
       <UserAvatar
@@ -27,7 +26,7 @@ const NameInput: React.ForwardRefRenderFunction<
       <input
         ref={ref}
         className={clsx("input pl-[35px]", className)}
-        placeholder={t("yourName")}
+        placeholder={m.app_yourName()}
         value={value}
         {...forwardProps}
       />

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import React from "react";
 
 import Bonus from "./home/bonus";
@@ -7,7 +6,6 @@ import Hero from "./home/hero";
 import PageLayout from "./page-layout";
 
 const Home: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("homepage");
   return (
     <PageLayout>
       <Hero />

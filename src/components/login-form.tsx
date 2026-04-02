@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,7 +12,6 @@ import { validEmail } from "@/utils/form-validation";
 import { api } from "../utils/api";
 
 const LoginForm: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("app");
   const { register, formState, handleSubmit, getValues } =
     useForm<{ email: string }>();
 
@@ -25,7 +24,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
       </div>
       <div className="max-w-sm p-6">
         <div className="mb-2 text-xl font-semibold">
-          {t("loginViaMagicLink")}
+          {m.app_loginViaMagicLink()}
         </div>
         {!formState.isSubmitSuccessful ? (
           <form
@@ -35,7 +34,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
             })}
           >
             <div className="mb-2 text-slate-500">
-              {t("loginViaMagicLinkDescription")}
+              {m.app_loginViaMagicLinkDescription()}
             </div>
             <div className="mb-4">
               <input
@@ -49,7 +48,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
               />
               {formState.errors.email ? (
                 <div className="mt-1 text-sm text-rose-500">
-                  {t("loginWithValidEmail")}
+                  {m.app_loginWithValidEmail()}
                 </div>
               ) : null}
             </div>
@@ -59,17 +58,17 @@ const LoginForm: React.VoidFunctionComponent = () => {
                 loading={formState.isSubmitting}
                 type="primary"
               >
-                {t("loginSendMagicLink")}
+                {m.app_loginSendMagicLink()}
               </Button>
             </div>
           </form>
         ) : (
           <div>
-            <div className="text-slate-500">{t("loginMagicLinkSent")}</div>
+            <div className="text-slate-500">{m.app_loginMagicLinkSent()}</div>
             <div className="font-mono text-primary-500">
               {getValues("email")}
             </div>
-            <div className="mt-2 text-slate-500">{t("loginCheckInbox")}</div>
+            <div className="mt-2 text-slate-500">{m.app_loginCheckInbox()}</div>
           </div>
         )}
       </div>

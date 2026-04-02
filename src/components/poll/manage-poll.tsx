@@ -1,5 +1,5 @@
 import { Placement } from "@floating-ui/react";
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { Button } from "@/components/button";
@@ -26,7 +26,6 @@ const PollOptionsForm = React.lazy(() => import("../forms/poll-options-form"));
 const ManagePoll: React.VoidFunctionComponent<{
   placement?: Placement;
 }> = ({ placement }) => {
-  const { t } = useTranslation("app");
   const { poll, getParticipantsWhoVotedForOption, setDeleted, urlId } =
     usePoll();
 
@@ -55,13 +54,13 @@ const ManagePoll: React.VoidFunctionComponent<{
     openChangeOptionsModal,
     closeChangeOptionsModal,
   ] = useModal({
-    okText: t("save"),
+    okText: m.app_save(),
     okButtonProps: {
       form: "pollOptions",
       htmlType: "submit",
       loading: isUpdating,
     },
-    cancelText: t("cancel"),
+    cancelText: m.app_cancel(),
     content: (
       <React.Suspense fallback={null}>
         <PollOptionsForm
@@ -116,20 +115,14 @@ const ManagePoll: React.VoidFunctionComponent<{
 
             if (optionsToDeleteThatHaveVotes.length > 0) {
               modalContext.render({
-                title: t("areYouSure"),
-                description: (
-                  <Trans
-                    t={t}
-                    i18nKey="deletingOptionsWarning"
-                    components={{ b: <strong /> }}
-                  />
-                ),
+                title: m.app_areYouSure(),
+                description: m.app_deletingOptionsWarning(),
                 onOk,
                 okButtonProps: {
                   type: "danger",
                 },
-                okText: t("delete"),
-                cancelText: t("cancel"),
+                okText: m.app_delete(),
+                cancelText: m.app_cancel(),
               });
             } else {
               onOk();
@@ -145,13 +138,13 @@ const ManagePoll: React.VoidFunctionComponent<{
     openChangePollDetailsModa,
     closePollDetailsModal,
   ] = useModal({
-    okText: t("save"),
+    okText: m.app_save(),
     okButtonProps: {
       form: "updateDetails",
       loading: isUpdating,
       htmlType: "submit",
     },
-    cancelText: t("cancel"),
+    cancelText: m.app_cancel(),
     content: (
       <PollDetailsForm
         name="updateDetails"
@@ -177,39 +170,39 @@ const ManagePoll: React.VoidFunctionComponent<{
       {changePollDetailsModalContextHolder}
       <Dropdown
         placement={placement}
-        trigger={<Button icon={<Cog />}>{t("manage")}</Button>}
+        trigger={<Button icon={<Cog />}>{m.app_manage()}</Button>}
       >
         <DropdownItem
           icon={Pencil}
-          label={t("editDetails")}
+          label={m.app_editDetails()}
           onClick={openChangePollDetailsModa}
         />
         <DropdownItem
           icon={Table}
-          label={t("editOptions")}
+          label={m.app_editOptions()}
           onClick={handleChangeOptions}
         />
         <DropdownItem
           icon={Save}
-          label={t("exportToCsv")}
+          label={m.app_exportToCsv()}
           onClick={exportToCsv}
         />
         {poll.closed ? (
           <DropdownItem
             icon={LockOpen}
-            label={t("unlockPoll")}
+            label={m.app_unlockPoll()}
             onClick={() => updatePollMutation({ urlId, closed: false })}
           />
         ) : (
           <DropdownItem
             icon={LockClosed}
-            label={t("lockPoll")}
+            label={m.app_lockPoll()}
             onClick={() => updatePollMutation({ urlId, closed: true })}
           />
         )}
         <DropdownItem
           icon={Trash}
-          label={t("deletePoll")}
+          label={m.app_deletePoll()}
           onClick={() => {
             modalContext.render({
               overlayClosable: true,

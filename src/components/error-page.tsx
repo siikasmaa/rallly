@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { Button } from "@/components/button";
@@ -18,7 +18,6 @@ const ErrorPage: React.VoidFunctionComponent<ComponentProps> = ({
   title,
   description,
 }) => {
-  const { t } = useTranslation("errors");
   return (
     <div className="mx-auto flex h-full max-w-full items-center justify-center bg-gray-50 px-4 py-8 lg:w-[1024px]">
       <div className="flex items-start">
@@ -29,9 +28,9 @@ const ErrorPage: React.VoidFunctionComponent<ComponentProps> = ({
           </div>
           <p>{description}</p>
           <div className="flex justify-center space-x-3">
-            <a href="/" className="btn-default">{t("goToHome")}</a>
+            <a href="/" className="btn-default">{m.errors_goToHome()}</a>
             <Button icon={<Chat />} onClick={showCrispChat}>
-              {t("startChat")}
+              {m.errors_startChat()}
             </Button>
           </div>
         </div>

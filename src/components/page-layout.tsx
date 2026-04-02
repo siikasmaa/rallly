@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { createBreakpoint } from "react-use";
 
@@ -20,7 +20,6 @@ const Menu: React.VoidFunctionComponent<{ className: string }> = ({
   className,
 }) => {
   const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-  const { t } = useTranslation("common");
   return (
     <nav className={className}>
       <a
@@ -33,7 +32,7 @@ const Menu: React.VoidFunctionComponent<{ className: string }> = ({
           },
         )}
       >
-        {t("home")}
+        {m.common_home()}
       </a>
       <a
         href="https://blog.rallly.co"
@@ -41,13 +40,13 @@ const Menu: React.VoidFunctionComponent<{ className: string }> = ({
           "text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2",
         )}
       >
-        {t("blog")}
+        {m.common_blog()}
       </a>
       <a
         href="https://support.rallly.co"
         className="text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2"
       >
-        {t("support")}
+        {m.common_support()}
       </a>
       <a
         href="https://github.com/lukevella/rallly"
@@ -63,7 +62,6 @@ const PageLayout: React.VoidFunctionComponent<PageLayoutProps> = ({
   children,
 }) => {
   const breakpoint = useBreakpoint();
-  const { t } = useTranslation("homepage");
   return (
     <div className="bg-pattern min-h-full overflow-x-hidden">
       <div className="mx-auto flex max-w-7xl items-center py-8 px-8">
@@ -73,7 +71,11 @@ const PageLayout: React.VoidFunctionComponent<PageLayoutProps> = ({
                 <Logo className="w-40 text-primary-500" alt="Rallly" />
           </a>
             <span className="absolute -bottom-6 right-0 text-sm text-slate-400 transition-colors">
-              <Trans t={t} i18nKey="3Ls" components={{ e: <em /> }} />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: m.homepage_3Ls().replace("<e>", "<em>").replace("</e>", "</em>"),
+                }}
+              />
             </span>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
@@ -84,8 +84,6 @@ const MobilePoll: React.VoidFunctionComponent = () => {
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
-  const { t } = useTranslation("app");
-
   const updateParticipant = useUpdateParticipantMutation();
 
   const addParticipant = useAddParticipantMutation();
@@ -143,7 +141,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                           />
                         </div>
                       ) : (
-                        t("participantCount", { count: participants.length })
+                        m.app_participantCount({ count: participants.length })
                       )}
                     </div>
                     <ChevronDown className="h-5 shrink-0" />
@@ -158,7 +156,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                     className="menu-items max-h-72 w-full overflow-auto"
                   >
                     <Listbox.Option value={undefined} className={styleMenuItem}>
-                      {t("participantCount", { count: participants.length })}
+                      {m.app_participantCount({ count: participants.length })}
                     </Listbox.Option>
                     {participants.map((participant) => (
                       <Listbox.Option
@@ -203,7 +201,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                   reset();
                 }}
               >
-                {t("cancel")}
+                {m.app_cancel()}
               </Button>
             ) : selectedParticipant ? (
               <div className="flex space-x-3">
@@ -230,7 +228,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                     });
                   }}
                 >
-                  {t("edit")}
+                  {m.app_edit()}
                 </Button>
                 <Button
                   icon={<Trash />}
@@ -266,7 +264,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                   setIsEditing(true);
                 }}
               >
-                {t("new")}
+                {m.app_new()}
               </Button>
             )}
           </div>
@@ -315,7 +313,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                   type="primary"
                   loading={formState.isSubmitting}
                 >
-                  {t("save")}
+                  {m.app_save()}
                 </Button>
               </div>
             </motion.div>

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 
@@ -14,7 +14,6 @@ export interface UserDetailsData {
 export const UserDetailsForm: React.VoidFunctionComponent<
   PollFormProps<UserDetailsData>
 > = ({ name, defaultValues, onSubmit, onChange, className }) => {
-  const { t } = useTranslation("app");
   const {
     handleSubmit,
     register,
@@ -38,10 +37,10 @@ export const UserDetailsForm: React.VoidFunctionComponent<
       style={{ width: 400 }}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <h2>{t("yourDetails")}</h2>
+      <h2>{m.app_yourDetails()}</h2>
       <div className="formField">
         <label className="text-slate-500" htmlFor="name">
-          {t("name")}
+          {m.app_name()}
         </label>
         <input
           type="text"
@@ -49,21 +48,21 @@ export const UserDetailsForm: React.VoidFunctionComponent<
           className={clsx("input w-full", {
             "input-error": errors.name,
           })}
-          placeholder={t("namePlaceholder")}
+          placeholder={m.app_namePlaceholder()}
           {...register("name", { validate: requiredString })}
         />
       </div>
 
       <div className="formField">
         <label className="text-slate-500" htmlFor="contact">
-          {t("email")}
+          {m.app_email()}
         </label>
         <input
           id="contact"
           className={clsx("input w-full", {
             "input-error": errors.contact,
           })}
-          placeholder={t("emailPlaceholder")}
+          placeholder={m.app_emailPlaceholder()}
           {...register("contact", {
             validate: validEmail,
           })}

@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import Discord from "@/components/icons/discord.svg";
@@ -13,7 +13,6 @@ import Vercel from "~/public/vercel-logotype-dark.svg";
 import { LanguageSelect } from "../poll/language-selector";
 
 const Footer: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("common");
   return (
     <div className="mt-16 bg-gradient-to-b from-gray-50/0 via-gray-50 to-gray-50 ">
       <div className="mx-auto max-w-7xl space-y-8 p-8 lg:flex lg:space-x-16 lg:space-y-0">
@@ -21,30 +20,22 @@ const Footer: React.VoidFunctionComponent = () => {
           <Logo className="w-32 text-slate-400" />
           <div className="mb-8 mt-4 text-slate-400">
             <p>
-              <Trans
-                t={t}
-                i18nKey="footerSponsor"
-                components={{
-                  a: (
-                    <a
-                      className="font-normal leading-loose text-slate-400 underline hover:text-slate-800 hover:underline"
-                      href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
-                    />
-                  ),
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: m.common_footerSponsor().replace(
+                    "<a>",
+                    '<a class="font-normal leading-loose text-slate-400 underline hover:text-slate-800 hover:underline" href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E">',
+                  ).replace("</a>", "</a>"),
                 }}
               />
             </p>
             <div>
-              <Trans
-                t={t}
-                i18nKey="footerCredit"
-                components={{
-                  a: (
-                    <a
-                      className="font-normal leading-loose text-slate-400 underline hover:text-slate-800 hover:underline"
-                      href="https://twitter.com/imlukevella"
-                    />
-                  ),
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: m.common_footerCredit().replace(
+                    "<a>",
+                    '<a class="font-normal leading-loose text-slate-400 underline hover:text-slate-800 hover:underline" href="https://twitter.com/imlukevella">',
+                  ).replace("</a>", "</a>"),
                 }}
               />
             </div>
@@ -67,24 +58,24 @@ const Footer: React.VoidFunctionComponent = () => {
               className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors hover:bg-primary-500 hover:text-white hover:no-underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 active:bg-primary-600"
             >
               <Star className="mr-2 inline-block w-5" />
-              <span>{t("starOnGithub")}</span>
+              <span>{m.common_starOnGithub()}</span>
             </a>
           </div>
         </div>
         <div className="lg:w-1/6">
-          <div className="mb-4 font-medium">{t("links")}</div>
+          <div className="mb-4 font-medium">{m.common_links()}</div>
           <ul className="space-y-2">
             <li>
               <a
                 className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline"
                 href="https://github.com/lukevella/rallly/discussions"
               >
-                {t("discussions")}
+                {m.common_discussions()}
               </a>
             </li>
             <li>
               <a href="https://blog.rallly.co" className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
-                  {t("blog")}
+                  {m.common_blog()}
               </a>
             </li>
             <li>
@@ -92,18 +83,18 @@ const Footer: React.VoidFunctionComponent = () => {
                 href="https://support.rallly.co"
                 className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline"
               >
-                {t("support")}
+                {m.common_support()}
               </a>
             </li>
             <li>
               <a href="/privacy-policy" className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
-                  {t("privacyPolicy")}
+                  {m.common_privacyPolicy()}
               </a>
             </li>
           </ul>
         </div>
         <div className="lg:w-1/6">
-          <div className="mb-4 font-medium">{t("poweredBy")}</div>
+          <div className="mb-4 font-medium">{m.common_poweredBy()}</div>
           <div className="block space-y-4">
             <div>
               <a
@@ -126,7 +117,7 @@ const Footer: React.VoidFunctionComponent = () => {
           </div>
         </div>
         <div className="lg:w-2/6">
-          <div className="mb-4 font-medium">{t("language")}</div>
+          <div className="mb-4 font-medium">{m.common_language()}</div>
           <LanguageSelect
             className="mb-4 w-full"
             onChange={(locale) => {
@@ -139,7 +130,7 @@ const Footer: React.VoidFunctionComponent = () => {
             className="inline-flex items-center rounded-md border px-3 py-2 text-xs text-slate-500"
           >
             <Translate className="mr-2 h-5 w-5" />
-            {t("volunteerTranslator")} &rarr;
+            {m.common_volunteerTranslator()} &rarr;
           </a>
         </div>
       </div>

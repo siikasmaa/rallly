@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 
@@ -22,7 +22,6 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
   name,
   email,
 }) => {
-  const { t } = useTranslation("app");
   const { register, formState, handleSubmit, reset } = useForm<{
     name: string;
     email: string;
@@ -52,7 +51,7 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
       className="card mb-4 p-0"
     >
       <div className="flex items-center justify-between border-b p-4 shadow-sm">
-        <div className="text-lg text-slate-700 ">{t("yourDetails")}</div>
+        <div className="text-lg text-slate-700 ">{m.app_yourDetails()}</div>
         <MotionButton
           variants={{
             hidden: { opacity: 0, x: 10 },
@@ -65,13 +64,13 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
           loading={formState.isSubmitting}
           type="primary"
         >
-          {t("save")}
+          {m.app_save()}
         </MotionButton>
       </div>
       <div className="divide-y">
         <div className="flex p-4 pr-8">
           <label htmlFor="name" className="w-1/3 text-slate-500">
-            {t("name")}
+            {m.app_name()}
           </label>
           <div className="w-2/3">
             <TextInput
@@ -86,14 +85,14 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
             />
             {formState.errors.name ? (
               <div className="mt-1 text-sm text-rose-500">
-                {t("requiredNameError")}
+                {m.app_requiredNameError()}
               </div>
             ) : null}
           </div>
         </div>
         <div className="flex p-4 pr-8">
           <label htmlFor="random-8904" className="w-1/3 text-slate-500">
-            {t("email")}
+            {m.app_email()}
           </label>
           <div className="w-2/3">
             <TextInput

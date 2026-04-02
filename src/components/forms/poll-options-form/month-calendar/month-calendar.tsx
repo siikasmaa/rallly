@@ -1,6 +1,6 @@
 import { addMinutes, differenceInMinutes, isSameDay, setHours } from "date-fns";
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
@@ -39,7 +39,6 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onChangeDuration,
 }) => {
   const { weekStartsOn } = useDayjs();
-  const { t } = useTranslation("app");
   const isTimedEvent = options.some((option) => option.type === "timeSlot");
 
   const plausible = usePlausible();
@@ -92,14 +91,14 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             <div className="mb-3 flex items-center justify-center space-x-4">
               <Button
                 icon={<ChevronLeft />}
-                title={t("previousMonth")}
+                title={m.app_previousMonth()}
                 onClick={datepicker.prev}
               />
               <div className="grow text-center text-lg font-medium">
                 {datepicker.label}
               </div>
               <Button
-                title={t("nextMonth")}
+                title={m.app_nextMonth()}
                 icon={<ChevronRight />}
                 onClick={datepicker.next}
               />
@@ -174,7 +173,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
               })}
             </div>
             <Button className="mt-3" onClick={datepicker.today}>
-              {t("today")}
+              {m.app_today()}
             </Button>
           </div>
         </div>
@@ -187,9 +186,9 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
         >
           <div className="flex items-center space-x-3 p-4">
             <div className="grow">
-              <div className="font-medium">{t("specifyTimes")}</div>
+              <div className="font-medium">{m.app_specifyTimes()}</div>
               <div className="text-sm text-slate-400">
-                {t("specifyTimesDescription")}
+                {m.app_specifyTimesDescription()}
               </div>
             </div>
             <div>
@@ -334,7 +333,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               ]);
                             }}
                           >
-                            {t("addTimeOption")}
+                            {m.app_addTimeOption()}
                           </Button>
                           <Dropdown
                             trigger={<CompactButton icon={DotsHorizontal} />}
@@ -343,7 +342,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                             <DropdownItem
                               icon={Magic}
                               disabled={datepicker.selection.length < 2}
-                              label={t("applyToAllDates")}
+                              label={m.app_applyToAllDates()}
                               onClick={() => {
                                 plausible("Applied options to all dates");
                                 const times = optionsForDay.map(
@@ -380,7 +379,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               }}
                             />
                             <DropdownItem
-                              label={t("deleteDate")}
+                              label={m.app_deleteDate()}
                               icon={Trash}
                               onClick={() => {
                                 onChange(
@@ -427,7 +426,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             <div className="flex h-full items-center justify-center py-12">
               <div className="text-center font-medium text-gray-400">
                 <Calendar className="mb-2 inline-block h-12 w-12" />
-                <div>{t("noDatesSelected")}</div>
+                <div>{m.app_noDatesSelected()}</div>
               </div>
             </div>
           )}

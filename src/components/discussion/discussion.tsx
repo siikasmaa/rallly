@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
@@ -29,7 +29,6 @@ interface CommentForm {
 
 const Discussion: React.VoidFunctionComponent = () => {
   const { locale } = useDayjs();
-  const { t } = useTranslation("app");
   const { poll } = usePoll();
 
   const pollId = poll.id;
@@ -97,7 +96,7 @@ const Discussion: React.VoidFunctionComponent = () => {
   return (
     <div className="overflow-hidden border-t border-b shadow-sm md:rounded-lg md:border">
       <div className="border-b bg-white px-4 py-2">
-        <div className="font-medium">{t("comments")}</div>
+        <div className="font-medium">{m.app_comments()}</div>
       </div>
       <div
         className={clsx({
@@ -144,7 +143,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                     >
                       <DropdownItem
                         icon={Trash}
-                        label={t("deleteComment")}
+                        label={m.app_deleteComment()}
                         disabled={!canDelete}
                         onClick={() => {
                           deleteComment({
@@ -173,7 +172,7 @@ const Discussion: React.VoidFunctionComponent = () => {
       >
         <textarea
           id="comment"
-          placeholder={t("commentPlaceholder")}
+          placeholder={m.app_commentPlaceholder()}
           className="input w-full py-2 pl-3 pr-4"
           {...register("content", { validate: requiredString })}
         />
@@ -190,7 +189,7 @@ const Discussion: React.VoidFunctionComponent = () => {
             />
           </div>
           <Button htmlType="submit" loading={formState.isSubmitting}>
-            {t("comment")}
+            {m.app_comment()}
           </Button>
         </div>
       </form>

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
@@ -25,8 +25,6 @@ export const DeletePollForm: React.VoidFunctionComponent<{
   const confirmationText = watch("confirmation");
   const canDelete = confirmationText === confirmText;
 
-  const { t } = useTranslation("app");
-
   return (
     <div className="flex max-w-lg space-x-6 p-5">
       <div className="">
@@ -43,15 +41,12 @@ export const DeletePollForm: React.VoidFunctionComponent<{
         })}
       >
         <div className="mb-3 text-xl font-medium text-slate-800">
-          {t("areYouSure")}
+          {m.app_areYouSure()}
         </div>
         <p className="text-slate-500">
-          <Trans
-            t={t}
-            i18nKey="deletePollDescription"
-            values={{ confirmText }}
-            components={{
-              s: <span className="whitespace-nowrap font-mono" />,
+          <span
+            dangerouslySetInnerHTML={{
+              __html: m.app_deletePollDescription({ confirmText }),
             }}
           />
         </p>
@@ -69,14 +64,14 @@ export const DeletePollForm: React.VoidFunctionComponent<{
           />
         </div>
         <div className="flex space-x-3">
-          <Button onClick={onCancel}>{t("cancel")}</Button>
+          <Button onClick={onCancel}>{m.app_cancel()}</Button>
           <Button
             disabled={!canDelete}
             htmlType="submit"
             type="danger"
             loading={formState.isSubmitting}
           >
-            {t("deletePoll")}
+            {m.app_deletePoll()}
           </Button>
         </div>
       </form>

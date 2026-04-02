@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { stringToValue } from "@/utils/string-to-value";
@@ -111,7 +111,6 @@ const UserAvatar: React.VoidFunctionComponent<UserAvaterProps> = ({
   className,
   ...forwardedProps
 }) => {
-  const { t } = useTranslation("app");
   if (!showName) {
     return <UserAvatarInner className={className} {...forwardedProps} />;
   }
@@ -127,7 +126,7 @@ const UserAvatar: React.VoidFunctionComponent<UserAvaterProps> = ({
       <div className="min-w-0 truncate" title={forwardedProps.name}>
         {forwardedProps.name}
       </div>
-      {isYou ? <Badge>{t("you")}</Badge> : null}
+      {isYou ? <Badge>{m.app_you()}</Badge> : null}
     </div>
   );
 };

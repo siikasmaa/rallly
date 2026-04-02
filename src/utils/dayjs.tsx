@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
-import { useTranslation } from "react-i18next";
+import { languageTag } from "@/paraglide/runtime";
 import * as React from "react";
 import { useAsync, useLocalStorage } from "react-use";
 
@@ -127,9 +127,9 @@ export const useDateContext = useDayjs;
 export const DayjsProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
-  const { i18n } = useTranslation();
+  const currentLanguage = languageTag();
 
-  const localeConfig = dateFnsLocales[i18n.language] ?? dateFnsLocales.en;
+  const localeConfig = dateFnsLocales[currentLanguage] ?? dateFnsLocales.en;
 
   const [weekStartsOn = localeConfig.weekStartsOn, setWeekStartsOn] =
     useLocalStorage<StartOfWeek>("rallly-week-starts-on");

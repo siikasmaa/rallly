@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -26,7 +26,6 @@ export type PollOptionsData = {
 const PollOptionsForm: React.VoidFunctionComponent<
   PollFormProps<PollOptionsData> & { title?: string }
 > = ({ name, defaultValues, onSubmit, onChange, title, className }) => {
-  const { t } = useTranslation("app");
   const { control, handleSubmit, watch, setValue, formState } =
     useForm<PollOptionsData>({
       defaultValues: {
@@ -52,18 +51,18 @@ const PollOptionsForm: React.VoidFunctionComponent<
   const views = React.useMemo(() => {
     const res = [
       {
-        label: t("monthView"),
+        label: m.app_monthView(),
         value: "month",
         Component: MonthCalendar,
       },
       {
-        label: t("weekView"),
+        label: m.app_weekView(),
         value: "week",
         Component: WeekCalendar,
       },
     ];
     return res;
-  }, [t]);
+  }, []);
 
   const watchView = watch("view");
 
@@ -79,9 +78,9 @@ const PollOptionsForm: React.VoidFunctionComponent<
   const datesOnly = watchOptions.every((option) => option.type === "date");
 
   const [dateOrTimeRangeModal, openDateOrTimeRangeModal] = useModal({
-    title: t("mixedOptionsTitle"),
-    description: t("mixedOptionsDescription"),
-    okText: t("mixedOptionsKeepTimes"),
+    title: m.app_mixedOptionsTitle(),
+    description: m.app_mixedOptionsDescription(),
+    okText: m.app_mixedOptionsKeepTimes(),
     onOk: () => {
       setValue(
         "options",
@@ -91,7 +90,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
         setValue("timeZone", getBrowserTimeZone());
       }
     },
-    cancelText: t("mixedOptionsKeepDates"),
+    cancelText: m.app_mixedOptionsKeepDates(),
     onCancel: () => {
       setValue(
         "options",
@@ -129,9 +128,9 @@ const PollOptionsForm: React.VoidFunctionComponent<
 
   const [calendarHelpModal, openHelpModal] = useModal({
     overlayClosable: true,
-    title: t("calendarHelpTitle"),
-    description: t("calendarHelp"),
-    okText: t("ok"),
+    title: m.app_calendarHelpTitle(),
+    description: m.app_calendarHelp(),
+    okText: m.app_ok(),
   });
 
   return (
@@ -171,7 +170,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
               }}
               type="button"
             >
-              <Calendar className="mr-2 h-5 w-5" /> {t("monthView")}
+              <Calendar className="mr-2 h-5 w-5" /> {m.app_monthView()}
             </button>
             <button
               className={clsx({
@@ -182,7 +181,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
                 setValue("view", "week");
               }}
             >
-              <Table className="mr-2 h-5 w-5" /> {t("weekView")}
+              <Table className="mr-2 h-5 w-5" /> {m.app_weekView()}
             </button>
           </div>
         </div>
@@ -191,7 +190,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
         <React.Suspense
           fallback={
             <FullPageLoader className="h-[400px]">
-              {t("loading")}
+              {m.app_loading()}
             </FullPageLoader>
           }
         >

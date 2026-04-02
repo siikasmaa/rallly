@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
@@ -13,7 +13,6 @@ import { useUpdatePollMutation } from "./mutations";
 
 const NotificationsToggle: React.VoidFunctionComponent = () => {
   const { poll, urlId } = usePoll();
-  const { t } = useTranslation("app");
   const [isUpdatingNotifications, setIsUpdatingNotifications] =
     React.useState(false);
 
@@ -27,28 +26,23 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
           poll.notifications ? (
             <div>
               <div className="font-medium text-primary-300">
-                {t("notificationsOn")}
+                {m.app_notificationsOn()}
               </div>
               <div className="max-w-sm">
-                <Trans
-                  t={t}
-                  i18nKey="notificationsOnDescription"
-                  values={{
-                    email: poll.user.email,
-                  }}
-                  components={{
-                    b: (
-                      <span className="whitespace-nowrap font-mono font-medium text-primary-300 " />
-                    ),
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: m.app_notificationsOnDescription({
+                      email: poll.user.email,
+                    }),
                   }}
                 />
               </div>
             </div>
           ) : (
-            t("notificationsOff")
+            m.app_notificationsOff()
           )
         ) : (
-          t("notificationsVerifyEmail")
+          m.app_notificationsVerifyEmail()
         )
       }
     >

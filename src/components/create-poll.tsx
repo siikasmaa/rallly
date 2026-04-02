@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import React from "react";
 import { useSessionStorage } from "react-use";
 
@@ -48,8 +48,6 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
   description,
   view,
 }) => {
-  const { t } = useTranslation("app");
-
   const session = useSession();
 
   const [persistedFormData, setPersistedFormData] =
@@ -153,7 +151,7 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
       <div className="max-w-full py-4 md:px-3 lg:px-6">
         <div className="mx-auto w-fit max-w-full lg:mx-0">
           <div className="mb-4 flex items-center justify-center space-x-4 px-4 lg:justify-start">
-            <h1 className="m-0">{t("newPoll")}</h1>
+            <h1 className="m-0">{m.app_newPoll()}</h1>
             <Steps current={currentStepIndex} total={steps.length} />
           </div>
           <div className="overflow-hidden border-t border-b bg-white shadow-sm md:rounded-lg md:border">
@@ -203,7 +201,7 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
                     });
                   }}
                 >
-                  {t("back")}
+                  {m.app_back()}
                 </Button>
               ) : null}
               <Button
@@ -213,8 +211,8 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
                 type="primary"
               >
                 {currentStepIndex < steps.length - 1
-                  ? t("continue")
-                  : t("createPoll")}
+                  ? m.app_continue()
+                  : m.app_createPoll()}
               </Button>
             </div>
           </div>

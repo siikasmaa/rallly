@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { api } from "../../utils/api";
@@ -6,7 +6,6 @@ import { Button } from "../button";
 import { usePoll } from "../poll-context";
 
 export const UnverifiedPollNotice = () => {
-  const { t } = useTranslation("app");
   const { poll } = usePoll();
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -29,14 +28,9 @@ export const UnverifiedPollNotice = () => {
     <div>
       <div className="md:flex md:justify-between md:space-x-4">
         <div className="mb-4 md:mb-0 md:w-2/3">
-          <Trans
-            t={t}
-            i18nKey="unverifiedMessage"
-            values={{ email: poll.user.email }}
-            components={{
-              b: (
-                <span className="whitespace-nowrap font-medium text-slate-700" />
-              ),
+          <span
+            dangerouslySetInnerHTML={{
+              __html: m.app_unverifiedMessage({ email: poll.user.email }),
             }}
           />
         </div>

@@ -1,5 +1,5 @@
 import type { Participant, Vote, VoteType } from "@/db/schema";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { api } from "../utils/api";
@@ -21,8 +21,6 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
   pollId: string;
 }> = ({ children, pollId }) => {
-  const { t } = useTranslation("app");
-
   const [participants, setParticipants] = React.useState<
     Array<Participant & { votes: Vote[] }> | null
   >(null);
@@ -55,7 +53,7 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
   };
 
   if (!participants) {
-    return <FullPageLoader>{t("loadingParticipants")}</FullPageLoader>;
+    return <FullPageLoader>{m.app_loadingParticipants()}</FullPageLoader>;
   }
 
   return (

@@ -1,16 +1,16 @@
 import clsx from "clsx";
 import Cookies from "js-cookie";
-import { useTranslation } from "react-i18next";
+import { languageTag } from "@/paraglide/runtime";
 
 export const LanguageSelect: React.VoidFunctionComponent<{
   className?: string;
   onChange?: (language: string) => void;
 }> = ({ className, onChange }) => {
-  const { i18n } = useTranslation("common");
+  const currentLanguage = languageTag();
   return (
     <select
       className={clsx("input", className)}
-      defaultValue={i18n.language}
+      defaultValue={currentLanguage}
       onChange={(e) => {
         Cookies.set("NEXT_LOCALE", e.target.value, {
           expires: 365,

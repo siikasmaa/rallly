@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import React from "react";
 import toast from "react-hot-toast";
 import { useMount } from "react-use";
@@ -38,8 +38,6 @@ const PollPage: React.VoidFunctionComponent = () => {
 
   useTouchBeacon(poll.id);
 
-  const { t } = useTranslation("app");
-
   const session = useSession();
 
   const plausible = usePlausible();
@@ -54,21 +52,21 @@ const PollPage: React.VoidFunctionComponent = () => {
       try {
         const { error } = await api.api.polls.verification.verify.post(input);
         if (error) {
-          toast.error(t("linkHasExpired"));
+          toast.error(m.app_linkHasExpired());
         } else {
-          toast.success(t("pollHasBeenVerified"));
+          toast.success(m.app_pollHasBeenVerified());
           session.refresh();
           plausible("Verified email");
         }
       } catch {
-        toast.error(t("linkHasExpired"));
+        toast.error(m.app_linkHasExpired());
       } finally {
         setIsVerifying(false);
         const urlIdParam = queryParams.get("urlId") ?? urlId;
         window.location.replace(`/admin/${urlIdParam}`);
       }
     },
-    [session, plausible, t, queryParams, urlId],
+    [session, plausible, queryParams, urlId],
   );
 
   useMount(() => {
@@ -84,7 +82,7 @@ const PollPage: React.VoidFunctionComponent = () => {
         { urlId: urlId, notifications: false },
         {
           onSuccess: () => {
-            toast.success(t("notificationsDisabled"));
+            toast.success(m.app_notificationsDisabled());
             plausible("Unsubscribed from notifications");
           },
         },
@@ -92,7 +90,7 @@ const PollPage: React.VoidFunctionComponent = () => {
       const urlIdParam = queryParams.get("urlId") ?? urlId;
       window.location.replace(`/admin/${urlIdParam}`);
     }
-  }, [plausible, urlId, queryParams, updatePollMutation, t]);
+  }, [plausible, urlId, queryParams, updatePollMutation]);
 
   const checkIfWideScreen = () => window.innerWidth > 640;
 
@@ -141,7 +139,7 @@ const PollPage: React.VoidFunctionComponent = () => {
                     setSharingVisible((value) => !value);
                   }}
                 >
-                  {t("share")}
+                  {m.app_share()}
                 </Button>
               </div>
               <AnimatePresence initial={false}>
@@ -184,10 +182,10 @@ const PollPage: React.VoidFunctionComponent = () => {
           {!poll.admin && poll.adminUrlId ? (
             <div className="mb-4 items-center justify-between rounded-lg px-4 md:flex md:space-x-4 md:border md:p-2 md:pl-4">
               <div className="mb-4 font-medium md:mb-0">
-                {t("pollOwnerNotice", { name: poll.user.name })}
+                {m.app_pollOwnerNotice({ name: poll.user.name })}
               </div>
               <a href={`/admin/${poll.adminUrlId}`} className="btn-default">
-                {t("goToAdmin")} &rarr;
+                {m.app_goToAdmin()} &rarr;
               </a>
             </div>
           ) : null}
@@ -197,7 +195,7 @@ const PollPage: React.VoidFunctionComponent = () => {
                 <LockClosed className="w-6" />
               </div>
               <div>
-                <div className="font-medium">{t("pollHasBeenLocked")}</div>
+                <div className="font-medium">{m.app_pollHasBeenLocked()}</div>
               </div>
             </div>
           ) : null}
@@ -223,29 +221,29 @@ const PollPage: React.VoidFunctionComponent = () => {
                 {poll.location ? (
                   <div className="lg:text-lg">
                     <div className="text-sm text-slate-500">
-                      {t("location")}
+                      {m.app_location()}
                     </div>
                     <TruncatedLinkify>{poll.location}</TruncatedLinkify>
                   </div>
                 ) : null}
                 <div>
                   <div className="mb-2 text-sm text-slate-500">
-                    {t("possibleAnswers")}
+                    {m.app_possibleAnswers()}
                   </div>
                   <div className="flex items-center space-x-3">
                     <span className="inline-flex items-center space-x-1">
                       <VoteIcon type="yes" />
-                      <span className="text-xs text-slate-500">{t("yes")}</span>
+                      <span className="text-xs text-slate-500">{m.app_yes()}</span>
                     </span>
                     <span className="inline-flex items-center space-x-1">
                       <VoteIcon type="ifNeedBe" />
                       <span className="text-xs text-slate-500">
-                        {t("ifNeedBe")}
+                        {m.app_ifNeedBe()}
                       </span>
                     </span>
                     <span className="inline-flex items-center space-x-1">
                       <VoteIcon type="no" />
-                      <span className="text-xs text-slate-500">{t("no")}</span>
+                      <span className="text-xs text-slate-500">{m.app_no()}</span>
                     </span>
                   </div>
                 </div>
@@ -256,7 +254,7 @@ const PollPage: React.VoidFunctionComponent = () => {
             </React.Suspense>
           </div>
 
-          <React.Suspense fallback={<div className="p-4">{t("loading")}</div>}>
+          <React.Suspense fallback={<div className="p-4">{m.app_loading()}</div>}>
             <Discussion />
           </React.Suspense>
         </div>

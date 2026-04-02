@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 
 import { usePoll } from "@/components/poll-context";
 
@@ -7,12 +7,11 @@ import { useParticipants } from "../../participants-provider";
 
 export const useCsvExporter = () => {
   const { poll, options } = usePoll();
-  const { t } = useTranslation("app");
   const { participants } = useParticipants();
   return {
     exportToCsv: () => {
       const header = [
-        t("participantCount", {
+        m.app_participantCount({
           count: participants.length,
         }),
         ...options.map((decodedOption) => {
@@ -32,11 +31,11 @@ export const useCsvExporter = () => {
 
             switch (vote?.type) {
               case "yes":
-                return t("yes");
+                return m.app_yes();
               case "ifNeedBe":
-                return t("ifNeedBe");
+                return m.app_ifNeedBe();
               default:
-                return t("no");
+                return m.app_no();
             }
           }),
         ].join(",");

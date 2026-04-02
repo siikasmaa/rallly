@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import Code from "@/components/icons/code.svg";
@@ -8,32 +8,32 @@ import Server from "@/components/icons/server.svg";
 import Ban from "./ban-ads.svg";
 
 const Bonus: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("homepage");
   return (
     <div className="mx-auto max-w-7xl px-8 py-8">
-      <h2 className="heading">{t("principles")}</h2>
-      <p className="subheading">{t("principlesSubheading")}</p>
+      <h2 className="heading">{m.homepage_principles()}</h2>
+      <p className="subheading">{m.homepage_principlesSubheading()}</p>
       <div className="grid grid-cols-4 gap-16">
         <div className="col-span-4 md:col-span-2 lg:col-span-1">
           <div className="mb-4 text-gray-400">
             <CursorClick className="w-16" />
           </div>
-          <h3 className="heading-sm">{t("noLoginRequired")}</h3>
+          <h3 className="heading-sm">{m.homepage_noLoginRequired()}</h3>
           <div className="text text-base leading-relaxed">
-            {t("noLoginRequiredDescription")}
+            {m.homepage_noLoginRequiredDescription()}
           </div>
         </div>
         <div className="col-span-4 md:col-span-2 lg:col-span-1">
           <div className="mb-4 text-gray-400">
             <Code className="w-16" />
           </div>
-          <h3 className="heading-sm">{t("openSource")}</h3>
+          <h3 className="heading-sm">{m.homepage_openSource()}</h3>
           <div className="text text-base leading-relaxed">
-            <Trans
-              t={t}
-              i18nKey={"openSourceDescription"}
-              components={{
-                a: <a href="https://github.com/lukevella/rallly" />,
+            <span
+              dangerouslySetInnerHTML={{
+                __html: m.homepage_openSourceDescription().replace(
+                  "<a>",
+                  '<a href="https://github.com/lukevella/rallly">',
+                ).replace("</a>", "</a>"),
               }}
             />
           </div>
@@ -42,18 +42,18 @@ const Bonus: React.VoidFunctionComponent = () => {
           <div className="mb-4 text-gray-400">
             <Server className="w-16" />
           </div>
-          <h3 className="heading-sm">{t("selfHostable")}</h3>
+          <h3 className="heading-sm">{m.homepage_selfHostable()}</h3>
           <div className="text text-base leading-relaxed">
-            {t("selfHostableDescription")}
+            {m.homepage_selfHostableDescription()}
           </div>
         </div>
         <div className="col-span-4 md:col-span-2 lg:col-span-1">
           <div className="mb-4 text-gray-400">
             <Ban className="w-16" />
           </div>
-          <h3 className="heading-sm">{t("adFree")}</h3>
+          <h3 className="heading-sm">{m.homepage_adFree()}</h3>
           <div className="text text-base leading-relaxed">
-            {t("adFreeDescription")}
+            {m.homepage_adFreeDescription()}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { useDayjs } from "../../utils/dayjs";
@@ -33,8 +33,6 @@ const participants = [
 const options = ["2022-12-14", "2022-12-15", "2022-12-16", "2022-12-17"];
 
 const PollDemo: React.VoidFunctionComponent = () => {
-  const { t } = useTranslation("homepage");
-
   const { formatDate } = useDayjs();
   return (
     <div
@@ -47,7 +45,7 @@ const PollDemo: React.VoidFunctionComponent = () => {
           style={{ width: sidebarWidth }}
         >
           <div className="flex h-full grow items-end">
-            {t("participantCount", { count: participants.length })}
+            {m.homepage_participantCount({ count: participants.length })}
           </div>
         </div>
         {options.map((option, i) => {

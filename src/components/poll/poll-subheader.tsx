@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { formatDistanceToNow } from "date-fns";
@@ -9,19 +9,13 @@ import Tooltip from "../tooltip";
 
 const PollSubheader: React.VoidFunctionComponent = () => {
   const { poll } = usePoll();
-  const { t } = useTranslation("app");
   const { locale } = useDayjs();
   return (
     <div className="text-slate-500/75 lg:text-lg">
       <div className="md:inline">
-        <Trans
-          i18nKey="createdBy"
-          t={t}
-          values={{
-            name: poll.authorName,
-          }}
-          components={{
-            b: <span />,
+        <span
+          dangerouslySetInnerHTML={{
+            __html: m.app_createdBy({ name: poll.authorName }),
           }}
         />
         {poll.legacy && poll.admin ? (
@@ -35,7 +29,7 @@ const PollSubheader: React.VoidFunctionComponent = () => {
           </Tooltip>
         ) : null}
         {poll.demo ? (
-          <Tooltip content={<Trans t={t} i18nKey="demoPollNotice" />}>
+          <Tooltip content={m.app_demoPollNotice()}>
             <Badge color="blue" className="ml-1">
               Demo
             </Badge>
