@@ -417,53 +417,35 @@ Replace `react-i18next` + `i18next` with **Paraglide** (compile-time i18n). Para
 
 ### 8a: Setup Paraglide
 
-- [ ] Install `@inlang/paraglide-js` (build-time CLI)
-- [ ] Create `project.inlang/settings.json` with:
-  - Source locale: `en`
-  - Locales: `cs, da, de, en, es, fr, hu, it, ko, nl, pl, pt-BR, pt, sk, sv, zh`
-  - Message file paths pointing to `public/locales/{locale}/`
-- [ ] Run `paraglide-js compile` to generate typed message functions in `src/paraglide/`
-- [ ] Add `paraglide-js compile` to build script: `"build": "paraglide-js compile && astro build"`
-- [ ] Add `src/paraglide/` to `.gitignore` (generated code)
+- [x] Install `@inlang/paraglide-js` (build-time CLI)
+- [x] Create `project.inlang/settings.json` with 17 locales and JSON plugin
+- [x] Merge 4 namespace JSONs into `messages/{locale}.json` with prefixed keys (181 keys)
+- [x] Create Paraglide message stubs (163 typed functions) in `src/paraglide/`
+- [x] Add `paraglide-js compile` to build/dev scripts via `bunx`
+- [x] Add `src/paraglide/` to `.gitignore` (generated code)
 
 ### 8b: Migrate translation usage
 
 39 components currently call `useTranslation()` from `react-i18next`. Each `t("key")` call becomes a direct function import.
 
-- [ ] Replace `useTranslation()` + `t("key")` pattern with Paraglide imports:
-  ```typescript
-  // Before:
-  import { useTranslation } from "react-i18next";
-  const { t } = useTranslation("app");
-  return <h1>{t("createPoll")}</h1>;
-
-  // After:
-  import * as m from "@/paraglide/messages";
-  return <h1>{m.createPoll()}</h1>;
-  ```
-- [ ] Handle parameterized translations:
-  ```typescript
-  // Before: t("greeting", { name: "Alice" })
-  // After:  m.greeting({ name: "Alice" })
-  ```
-- [ ] Handle namespace separation (common, app, errors, homepage):
-  - Paraglide flattens all messages — may need prefixing to avoid key collisions
-  - Or keep separate message files per namespace
-- [ ] Update all 39 components (list in Phase 6 cleanup section)
+- [x] Replace all `useTranslation()` + `t("key")` with `m.namespace_key()` imports
+- [x] Replace all `<Trans>` components with `dangerouslySetInnerHTML`
+- [x] Handle parameterized translations as function params
+- [x] Handle namespace collisions via prefixed keys (`app_`, `common_`, etc.)
+- [x] Update all 39 components
 
 ### 8c: Locale switching
 
-- [ ] Wire Astro middleware locale detection to Paraglide's `setLanguageTag()`
-- [ ] Update language selector component to set locale cookie and call `setLanguageTag()`
-- [ ] Ensure React islands receive the correct language tag from the Astro page context
+- [x] Replace `i18n.language` with `languageTag()` from Paraglide runtime
+- [x] Update language selector to use `setLanguageTag()` + cookie + reload
+- [ ] Wire Astro middleware to call `setLanguageTag()` on each request
 
 ### 8d: Cleanup
 
-- [ ] Remove `react-i18next` and `i18next` from `package.json`
-- [ ] Remove `public/locales/` JSON translation files (messages now compiled into JS)
-  - Or keep them as Paraglide source files if using JSON format
-- [ ] Remove `DayjsProvider` / `useDayjs` locale loading (Paraglide handles locale)
-- [ ] Verify all 16 locales render correctly
+- [x] Remove `react-i18next` and `i18next` from `package.json`
+- [ ] Remove `public/locales/` (original namespace JSONs; `messages/` is now the source)
+- [ ] Simplify date provider locale loading to use Paraglide `languageTag()`
+- [ ] Verify all 17 locales render correctly
 
 ---
 
