@@ -55,18 +55,18 @@ These files use Node.js APIs unavailable in Cloudflare Workers:
 
 Switch from yarn/Node.js to Bun for all tooling.
 
-- [ ] Install Bun and verify version compatibility
+- [x] Install Bun and verify version compatibility
 - [ ] Run `bun install` to generate `bun.lockb` from existing `package.json`
 - [ ] Remove `yarn.lock`
-- [ ] Update all `package.json` scripts to use `bun` where applicable
+- [x] Update all `package.json` scripts to use `bun` where applicable
   - `"dev"` → `bun run dev` (or just `bun dev`)
   - `"build"` → `bun run build`
   - `"test"` → `bun run test` (Playwright still runs under its own runtime)
   - `"postinstall"` → `bunx prisma generate` (temporary, until Drizzle migration)
 - [ ] Verify `bun run dev`, `bun run build`, `bun run lint`, `bun run lint:tsc` all pass
-- [ ] Update CI workflow (`.github/workflows/ci.yml`) to use Bun instead of Node.js 16
-- [ ] Update Dockerfile to use `oven/bun` base image (temporary, will be removed in Phase 5)
-- [ ] Update `docker_start.sh` to use `bun` commands
+- [x] Update CI workflow (`.github/workflows/ci.yml`) to use Bun instead of Node.js 16
+- [x] Update Dockerfile to use `oven/bun` base image (temporary, will be removed in Phase 5)
+- [x] Update `docker_start.sh` to use `bun` commands
 - [ ] Verify Playwright tests still pass under Bun
 
 ---

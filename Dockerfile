@@ -1,18 +1,18 @@
-FROM node:alpine as build
+FROM oven/bun:latest as build
 
 WORKDIR /app
 
 COPY package.json .
-COPY yarn.lock .
+COPY bun.lockb .
 COPY prisma/schema.prisma .
 
-RUN yarn --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY . .
 
-RUN yarn build
+RUN bun run build
 
-FROM node:alpine
+FROM oven/bun:latest
 
 ENV PORT 3000
 EXPOSE 3000
