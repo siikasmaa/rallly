@@ -411,6 +411,62 @@ Currently using `dayjs`, `spacetime`, and `timezone-soft`. Consolidate to **date
 
 ---
 
+## Phase 8: Replace react-i18next with Paraglide
+
+Replace `react-i18next` + `i18next` with **Paraglide** (compile-time i18n). Paraglide generates typed, tree-shakeable message functions from translation JSON files at build time. Zero runtime dependencies — no i18n library ships to the client.
+
+### 8a: Setup Paraglide
+
+- [ ] Install `@inlang/paraglide-js` (build-time CLI)
+- [ ] Create `project.inlang/settings.json` with:
+  - Source locale: `en`
+  - Locales: `cs, da, de, en, es, fr, hu, it, ko, nl, pl, pt-BR, pt, sk, sv, zh`
+  - Message file paths pointing to `public/locales/{locale}/`
+- [ ] Run `paraglide-js compile` to generate typed message functions in `src/paraglide/`
+- [ ] Add `paraglide-js compile` to build script: `"build": "paraglide-js compile && astro build"`
+- [ ] Add `src/paraglide/` to `.gitignore` (generated code)
+
+### 8b: Migrate translation usage
+
+39 components currently call `useTranslation()` from `react-i18next`. Each `t("key")` call becomes a direct function import.
+
+- [ ] Replace `useTranslation()` + `t("key")` pattern with Paraglide imports:
+  ```typescript
+  // Before:
+  import { useTranslation } from "react-i18next";
+  const { t } = useTranslation("app");
+  return <h1>{t("createPoll")}</h1>;
+
+  // After:
+  import * as m from "@/paraglide/messages";
+  return <h1>{m.createPoll()}</h1>;
+  ```
+- [ ] Handle parameterized translations:
+  ```typescript
+  // Before: t("greeting", { name: "Alice" })
+  // After:  m.greeting({ name: "Alice" })
+  ```
+- [ ] Handle namespace separation (common, app, errors, homepage):
+  - Paraglide flattens all messages — may need prefixing to avoid key collisions
+  - Or keep separate message files per namespace
+- [ ] Update all 39 components (list in Phase 6 cleanup section)
+
+### 8c: Locale switching
+
+- [ ] Wire Astro middleware locale detection to Paraglide's `setLanguageTag()`
+- [ ] Update language selector component to set locale cookie and call `setLanguageTag()`
+- [ ] Ensure React islands receive the correct language tag from the Astro page context
+
+### 8d: Cleanup
+
+- [ ] Remove `react-i18next` and `i18next` from `package.json`
+- [ ] Remove `public/locales/` JSON translation files (messages now compiled into JS)
+  - Or keep them as Paraglide source files if using JSON format
+- [ ] Remove `DayjsProvider` / `useDayjs` locale loading (Paraglide handles locale)
+- [ ] Verify all 16 locales render correctly
+
+---
+
 ## Dependency Mapping
 
 Packages that change or are removed during migration:
@@ -428,7 +484,8 @@ Packages that change or are removed during migration:
 | `jose` | Remove | Web Crypto API |
 | `nodemailer` | Remove | Cloudflare Email Workers |
 | `eta` | Remove | Template literals |
-| `next-i18next` | Remove | `react-i18next` (standalone) |
+| `next-i18next` | Remove | `@inlang/paraglide-js` (compile-time, zero runtime) |
+| `react-i18next`, `i18next` | Remove | `@inlang/paraglide-js` |
 | `@sentry/nextjs` | Remove | `@sentry/cloudflare`, `@sentry/browser` |
 | `next-plausible` | Remove | `<script>` tag |
 | `eslint-config-next` | Remove | `eslint-plugin-astro` |
@@ -472,3 +529,5 @@ Packages that change or are removed during migration:
 | framer-motion v6→v11 breaking changes | Medium | Test all animation components; core `motion`/`AnimatePresence` API is stable |
 | @headlessui/react v1→v2 API changes | Medium | Dialog, Popover, Switch APIs changed; update one component at a time |
 | Tailwind CSS v3→v4 migration | High | New engine, CSS-first config; evaluate scope before committing — may defer |
+| Paraglide namespace flattening | Medium | Paraglide uses flat keys; prefix with namespace (`app_createPoll`) or use separate message files to avoid collisions across common/app/errors/homepage |
+| Paraglide + React islands locale sync | Low | Pass language tag from Astro middleware to React via props or `setLanguageTag()` in island wrapper |
