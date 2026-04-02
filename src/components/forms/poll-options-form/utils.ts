@@ -1,9 +1,9 @@
-import dayjs from "dayjs";
+import { format } from "date-fns";
 
 export const formatDateWithoutTz = (date: Date): string => {
-  return dayjs(date).format("YYYY-MM-DDTHH:mm:ss");
+  return format(date, "yyyy-MM-dd'T'HH:mm:ss");
 };
 
 export const formatDateWithoutTime = (date: Date): string => {
-  return dayjs(date).format("YYYY-MM-DD");
+  return format(date, "yyyy-MM-dd");
 };

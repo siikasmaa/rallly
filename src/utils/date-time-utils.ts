@@ -1,5 +1,12 @@
 import type { Option } from "@/db/schema";
-import dayjs from "dayjs";
+import {
+  differenceInHours,
+  differenceInMinutes,
+  format,
+  isSameDay,
+  parseISO,
+} from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 import {
   DateTimeOption,
@@ -40,9 +47,11 @@ export type ParsedDateTimeOpton = ParsedDateOption | ParsedTimeSlotOption;
 
 const isTimeSlot = (value: string) => value.indexOf("/") !== -1;
 
-export const getDuration = (startTime: dayjs.Dayjs, endTime: dayjs.Dayjs) => {
-  const hours = Math.floor(endTime.diff(startTime, "hours"));
-  const minutes = Math.floor(endTime.diff(startTime, "minute") - hours * 60);
+export const getDuration = (startTime: Date, endTime: Date) => {
+  const hours = Math.floor(differenceInHours(endTime, startTime));
+  const minutes = Math.floor(
+    differenceInMinutes(endTime, startTime) - hours * 60,
+  );
   let res = "";
   if (hours) {
     res += `${hours}h`;
@@ -88,15 +97,38 @@ const parseDateOption = (option: Option): ParsedDateOption => {
       ? // we add the time because otherwise Date will assume UTC time which might change the day for some time zones
         option.value + "T00:00:00"
       : option.value;
-  const date = dayjs(dateString);
+  const date = new Date(dateString);
   return {
     type: "date",
     optionId: option.id,
-    day: date.format("D"),
-    dow: date.format("ddd"),
-    month: date.format("MMM"),
-    year: date.format("YYYY"),
+    day: format(date, "d"),
+    dow: format(date, "EEE"),
+    month: format(date, "MMM"),
+    year: format(date, "yyyy"),
   };
+};
+
+/**
+ * Convert a date from one timezone to another.
+ * This replaces `dayjs(date).tz(timeZone, true).tz(targetTimeZone)`.
+ *
+ * The approach: treat `dateStr` as a wall-clock time in `timeZone`,
+ * convert it to UTC, then get the wall-clock time in `targetTimeZone`.
+ */
+const convertTimeZone = (dateStr: string, fromTz: string, toTz: string): Date => {
+  // Parse the date string as a local date
+  const localDate = new Date(dateStr);
+
+  // Get the offset in the source timezone by formatting
+  // We use a trick: get the UTC representation of this wall-clock time in fromTz
+  // by using toZonedTime in reverse
+  const utcDate = new Date(
+    localDate.getTime() -
+      (toZonedTime(localDate, fromTz).getTime() - localDate.getTime()),
+  );
+
+  // Now convert UTC to target timezone
+  return toZonedTime(utcDate, toTz);
 };
 
 const parseTimeSlotOption = (
@@ -108,23 +140,23 @@ const parseTimeSlotOption = (
 
   const startDate =
     timeZone && targetTimeZone
-      ? dayjs(start).tz(timeZone, true).tz(targetTimeZone)
-      : dayjs(start);
+      ? convertTimeZone(start, timeZone, targetTimeZone)
+      : new Date(start);
   const endDate =
     timeZone && targetTimeZone
-      ? dayjs(end).tz(timeZone, true).tz(targetTimeZone)
-      : dayjs(end);
+      ? convertTimeZone(end, timeZone, targetTimeZone)
+      : new Date(end);
 
   return {
     type: "timeSlot",
     optionId: option.id,
-    startTime: startDate.format("LT"),
-    endTime: endDate.format("LT"),
-    day: startDate.format("D"),
-    dow: startDate.format("ddd"),
-    month: startDate.format("MMM"),
+    startTime: format(startDate, "p"),
+    endTime: format(endDate, "p"),
+    day: format(startDate, "d"),
+    dow: format(startDate, "EEE"),
+    month: format(startDate, "MMM"),
     duration: getDuration(startDate, endDate),
-    year: startDate.format("YYYY"),
+    year: format(startDate, "yyyy"),
   };
 };
 
@@ -133,19 +165,18 @@ export const removeAllOptionsForDay = (
   date: Date,
 ) => {
   return options.filter((option) => {
-    return !dayjs(date).isSame(
-      option.type === "date" ? option.date : option.start,
-      "day",
+    return !isSameDay(
+      date,
+      new Date(option.type === "date" ? option.date : option.start),
     );
   });
 };
 
 export const getDateProps = (date: Date) => {
-  const d = dayjs(date);
   return {
-    day: d.format("D"),
-    dow: d.format("ddd"),
-    month: d.format("MMM"),
+    day: format(date, "d"),
+    dow: format(date, "EEE"),
+    month: format(date, "MMM"),
   };
 };
 

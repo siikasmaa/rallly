@@ -7,9 +7,8 @@ import {
 } from "@floating-ui/react-dom-interactions";
 import { Combobox } from "@headlessui/react";
 import clsx from "clsx";
+import { format as formatTz } from "date-fns-tz";
 import React from "react";
-import spacetime from "spacetime";
-import soft from "timezone-soft";
 
 import ChevronDown from "../../components/icons/chevron-down.svg";
 import { styleMenuItem } from "../menu-styles";
@@ -21,26 +20,41 @@ interface TimeZoneOption {
   offset: number;
 }
 
+/**
+ * Get the numeric UTC offset (in hours) for a given IANA timezone.
+ */
+const getTimezoneOffset = (tz: string): number => {
+  try {
+    const now = new Date();
+    // Format the offset string, e.g. "+05:30" or "-08:00"
+    const offsetStr = formatTz(now, "xxx", { timeZone: tz });
+    const match = offsetStr.match(/^([+-])(\d{2}):(\d{2})$/);
+    if (!match) return 0;
+    const sign = match[1] === "-" ? -1 : 1;
+    const hours = parseInt(match[2], 10);
+    const minutes = parseInt(match[3], 10);
+    return sign * (hours + minutes / 60);
+  } catch {
+    return 0;
+  }
+};
+
 const useTimeZones = () => {
   const options = React.useMemo(() => {
     return Object.entries(timeZones)
-      .reduce<TimeZoneOption[]>((selectOptions, zone) => {
-        const now = spacetime.now(zone[0]);
-        const tz = now.timezone();
+      .reduce<TimeZoneOption[]>((selectOptions, [tzId, displayName]) => {
+        const tzOffset = getTimezoneOffset(tzId);
 
-        let label = "";
-
-        const min = tz.current.offset * 60;
-        const hr =
-          `${(min / 60) ^ 0}:` + (min % 60 === 0 ? "00" : Math.abs(min % 60));
-        const prefix = `(GMT${hr.includes("-") ? hr : `+${hr}`}) ${zone[1]}`;
-
-        label = prefix;
+        const totalMinutes = tzOffset * 60;
+        const hrs = Math.trunc(totalMinutes / 60);
+        const mins = Math.abs(totalMinutes % 60);
+        const hrStr = `${hrs}:${mins === 0 ? "00" : mins}`;
+        const prefix = `(GMT${hrStr.startsWith("-") ? hrStr : `+${hrStr}`}) ${displayName}`;
 
         selectOptions.push({
-          value: tz.name,
-          label: label,
-          offset: tz.current.offset,
+          value: tzId,
+          label: prefix,
+          offset: tzOffset,
         });
 
         return selectOptions;
@@ -50,59 +64,34 @@ const useTimeZones = () => {
 
   const findFuzzyTz = React.useCallback(
     (zone: string): TimeZoneOption => {
-      let currentTime = spacetime.now("GMT");
-      try {
-        currentTime = spacetime.now(zone);
-      } catch (err) {
-        throw new Error(`Invalid time zone: zone`);
-      }
-      return options
-        .filter(
-          (tz: TimeZoneOption) =>
-            tz.offset === currentTime.timezone().current.offset,
-        )
-        .map((tz: TimeZoneOption) => {
+      const zoneOffset = getTimezoneOffset(zone);
+      const zoneLower = zone.toLowerCase();
+
+      // Find timezones with the same offset, then score by string matching
+      const matches = options
+        .filter((tz) => tz.offset === zoneOffset)
+        .map((tz) => {
           let score = 0;
-          if (
-            currentTime.timezones[tz.value.toLowerCase()] &&
-            !!currentTime.timezones[tz.value.toLowerCase()].dst ===
-              currentTime.timezone().hasDst
-          ) {
-            if (
-              tz.value
-                .toLowerCase()
-                .indexOf(
-                  currentTime.tz.substring(currentTime.tz.indexOf("/") + 1),
-                ) !== -1
-            ) {
-              score += 8;
-            }
-            if (
-              tz.label
-                .toLowerCase()
-                .indexOf(
-                  currentTime.tz.substring(currentTime.tz.indexOf("/") + 1),
-                ) !== -1
-            ) {
-              score += 4;
-            }
-            if (
-              tz.value
-                .toLowerCase()
-                .indexOf(
-                  currentTime.tz.substring(0, currentTime.tz.indexOf("/")),
-                )
-            ) {
-              score += 2;
-            }
-            score += 1;
-          } else if (tz.value === "GMT") {
-            score += 1;
+          const afterSlash = zoneLower.substring(zoneLower.indexOf("/") + 1);
+          const beforeSlash = zoneLower.substring(0, zoneLower.indexOf("/"));
+
+          if (tz.value.toLowerCase().includes(afterSlash)) {
+            score += 8;
           }
+          if (tz.label.toLowerCase().includes(afterSlash)) {
+            score += 4;
+          }
+          if (tz.value.toLowerCase().includes(beforeSlash)) {
+            score += 2;
+          }
+          score += 1;
           return { tz, score };
         })
-        .sort((a, b) => b.score - a.score)
-        .map(({ tz }) => tz)[0];
+        .sort((a, b) => b.score - a.score);
+
+      return matches.length > 0
+        ? matches[0].tz
+        : options[0];
     },
     [options],
   );
@@ -168,15 +157,19 @@ const TimeZonePicker: React.VoidFunctionComponent<{
   const [query, setQuery] = React.useState("");
 
   const filteredTimeZones = React.useMemo(() => {
-    return query
-      ? timeZoneOptions.filter((tz) => {
-          if (tz.label.toLowerCase().includes(query.toLowerCase())) {
-            return true;
-          }
-          const tzStrings = soft(query);
-          return tzStrings.some((tzString) => tzString.iana === tz.value);
-        })
-      : timeZoneOptions;
+    if (!query) return timeZoneOptions;
+    const lowerQuery = query.toLowerCase();
+    return timeZoneOptions.filter((tz) => {
+      // Match against the label (which includes the display name)
+      if (tz.label.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+      // Also match against the IANA timezone ID
+      if (tz.value.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+      return false;
+    });
   }, [timeZoneOptions, query]);
 
   return (

@@ -6,6 +6,7 @@ const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { formatDistanceToNow } from "date-fns";
 import { useDayjs } from "../../utils/dayjs";
 import { requiredString } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
@@ -26,7 +27,7 @@ interface CommentForm {
 }
 
 const Discussion: React.VoidFunctionComponent = () => {
-  const { dayjs } = useDayjs();
+  const { locale } = useDayjs();
   const queryClient = trpc.useContext();
   const { t } = useTranslation("app");
   const { poll } = usePoll();
@@ -124,7 +125,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                     <div className="mb-1">
                       <span className="mr-1 text-slate-400">&bull;</span>
                       <span className="text-sm text-slate-500">
-                        {dayjs(new Date(comment.createdAt)).fromNow()}
+                        {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale })}
                       </span>
                     </div>
                     <Dropdown

@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { subMinutes } from "date-fns";
 
 import { getDb } from "@/db";
 import { options, participants, polls, users, votes } from "@/db/schema";
@@ -100,9 +100,7 @@ export const demo = createRouter().mutation("create", {
         name,
         userId: "user-demo",
         pollId,
-        createdAt: dayjs()
-          .add(i * -1, "minutes")
-          .toDate(),
+        createdAt: subMinutes(new Date(), i),
       });
 
       for (let j = 0; j < optionRecords.length; j++) {

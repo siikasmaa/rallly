@@ -1,3 +1,4 @@
+import { addMinutes, differenceInMinutes, format } from "date-fns";
 import clsx from "clsx";
 import React from "react";
 import { Calendar } from "react-big-calendar";
@@ -6,7 +7,7 @@ import { useMount } from "react-use";
 import { getDuration } from "../../../utils/date-time-utils";
 import { useDayjs } from "../../../utils/dayjs";
 import DateNavigationToolbar from "./date-navigation-toolbar";
-import dayjsLocalizer from "./dayjs-localizer";
+import localizer from "./dayjs-localizer";
 import { DateTimeOption, DateTimePickerProps } from "./types";
 import { formatDateWithoutTime, formatDateWithoutTz } from "./utils";
 
@@ -20,12 +21,11 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onChangeDuration,
 }) => {
   const [scrollToTime, setScrollToTime] = React.useState<Date>();
-  const { dayjs, timeFormat } = useDayjs();
-  const localizer = React.useMemo(() => dayjsLocalizer(dayjs), [dayjs]);
+  const { formatDate, timeFormat } = useDayjs();
 
   useMount(() => {
     // Bit of a hack to force rbc to scroll to the right time when we close/open a modal
-    setScrollToTime(dayjs(date).add(-60, "minutes").toDate());
+    setScrollToTime(addMinutes(date, -60));
   });
 
   return (
@@ -82,8 +82,8 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
           );
         },
         eventWrapper: function EventWraper(props) {
-          const start = dayjs(props.event.start);
-          const end = dayjs(props.event.end);
+          const start = props.event.start!;
+          const end = props.event.end!;
           return (
             <div
               // onClick prop doesn't work properly. Seems like some other element is cancelling the event before it reaches this element
@@ -96,7 +96,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                 width: `calc(${props.style?.width}%)`,
               }}
             >
-              <div>{start.format("LT")}</div>
+              <div>{formatDate(start, "p")}</div>
               <div className="font-semibold">{getDuration(start, end)}</div>
             </div>
           );
@@ -134,9 +134,9 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                 )}
               >
                 <span className="mr-1 font-normal opacity-50">
-                  {dayjs(date).format("ddd")}
+                  {formatDate(date, "EEE")}
                 </span>
-                <span className="font-medium">{dayjs(date).format("DD")}</span>
+                <span className="font-medium">{format(date, "dd")}</span>
               </span>
             );
           },
@@ -158,14 +158,12 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
         };
 
         if (action === "select") {
-          const diff = dayjs(endDate).diff(startDate, "minutes");
+          const diff = differenceInMinutes(endDate, startDate);
           if (diff < 60 * 24) {
             onChangeDuration(diff);
           }
         } else {
-          newEvent.end = formatDateWithoutTz(
-            dayjs(startDate).add(duration, "minutes").toDate(),
-          );
+          newEvent.end = formatDateWithoutTz(addMinutes(startDate, duration));
         }
 
         const alreadyExists = options.some(

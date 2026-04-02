@@ -1,6 +1,7 @@
 import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 
+import { formatDistanceToNow } from "date-fns";
 import { useDayjs } from "../../utils/dayjs";
 import Badge from "../badge";
 import { usePoll } from "../poll-context";
@@ -9,7 +10,7 @@ import Tooltip from "../tooltip";
 const PollSubheader: React.VoidFunctionComponent = () => {
   const { poll } = usePoll();
   const { t } = useTranslation("app");
-  const { dayjs } = useDayjs();
+  const { locale } = useDayjs();
   return (
     <div className="text-slate-500/75 lg:text-lg">
       <div className="md:inline">
@@ -43,7 +44,7 @@ const PollSubheader: React.VoidFunctionComponent = () => {
       </div>
       <span className="hidden md:inline">&nbsp;&bull;&nbsp;</span>
       <span className="whitespace-nowrap">
-        {dayjs(poll.createdAt).fromNow()}
+        {formatDistanceToNow(new Date(poll.createdAt), { addSuffix: true, locale })}
       </span>
     </div>
   );

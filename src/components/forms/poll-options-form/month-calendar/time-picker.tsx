@@ -7,6 +7,7 @@ import {
 } from "@floating-ui/react-dom-interactions";
 import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
+import { addMinutes, format, getHours, getMinutes, startOfDay } from "date-fns";
 import * as React from "react";
 
 import { stopPropagation } from "@/utils/stop-propagation";
@@ -28,7 +29,7 @@ const TimePicker: React.VoidFunctionComponent<TimePickerProps> = ({
   className,
   startFrom,
 }) => {
-  const { dayjs } = useDayjs();
+  const { formatDate } = useDayjs();
   const { reference, floating, x, y, strategy, refs } = useFloating({
     strategy: "fixed",
     middleware: [
@@ -47,23 +48,21 @@ const TimePicker: React.VoidFunctionComponent<TimePickerProps> = ({
   });
 
   const renderOptions = () => {
-    const startFromDate = startFrom
-      ? dayjs(startFrom)
-      : dayjs(value).startOf("day");
+    const startFromDate = startFrom ? startFrom : startOfDay(value);
 
     const options: React.ReactNode[] = [];
     const startMinute =
-      startFromDate.get("hour") * 60 + startFromDate.get("minute");
+      getHours(startFromDate) * 60 + getMinutes(startFromDate);
     const intervals = Math.floor((1440 - startMinute) / 15);
     for (let i = 0; i < intervals; i++) {
-      const optionValue = startFromDate.add(i * 15, "minutes");
+      const optionValue = addMinutes(startFromDate, i * 15);
       options.push(
         <Listbox.Option
           key={i}
           className={styleMenuItem}
-          value={optionValue.format("YYYY-MM-DDTHH:mm:ss")}
+          value={format(optionValue, "yyyy-MM-dd'T'HH:mm:ss")}
         >
-          {optionValue.format("LT")}
+          {formatDate(optionValue, "p")}
         </Listbox.Option>,
       );
     }
@@ -72,7 +71,7 @@ const TimePicker: React.VoidFunctionComponent<TimePickerProps> = ({
 
   return (
     <Listbox
-      value={dayjs(value).format("YYYY-MM-DDTHH:mm:ss")}
+      value={format(value, "yyyy-MM-dd'T'HH:mm:ss")}
       onChange={(newValue) => {
         onChange?.(new Date(newValue));
       }}
@@ -81,7 +80,7 @@ const TimePicker: React.VoidFunctionComponent<TimePickerProps> = ({
         <>
           <div ref={reference} className={clsx("relative", className)}>
             <Listbox.Button className="btn-default text-left">
-              <span className="grow truncate">{dayjs(value).format("LT")}</span>
+              <span className="grow truncate">{formatDate(value, "p")}</span>
               <span className="pointer-events-none ml-2 flex">
                 <ChevronDown className="h-5 w-5" />
               </span>

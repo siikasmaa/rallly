@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import dayjs from "dayjs";
+import { isBefore, subDays } from "date-fns";
 import { and, asc, eq, inArray, lte, or, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
     .innerJoin(options, eq(options.pollId, polls.id))
     .where(
       and(
-        lte(polls.touchedAt, dayjs().add(-30, "days").toDate()),
+        lte(polls.touchedAt, subDays(new Date(), 30)),
         eq(polls.deleted, false),
       ),
     )
@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
     const date =
       parsedValue.type === "date" ? parsedValue.date : parsedValue.end;
 
-    if (dayjs(date).isBefore(dayjs())) {
+    if (isBefore(new Date(date), new Date())) {
       pollsToSoftDelete.push(id);
     }
   });
@@ -62,11 +62,11 @@ export const POST: APIRoute = async ({ request }) => {
     where: or(
       and(
         eq(polls.deleted, true),
-        lte(polls.deletedAt, dayjs().add(-7, "days").toDate()),
+        lte(polls.deletedAt, subDays(new Date(), 7)),
       ),
       and(
         eq(polls.demo, true),
-        lte(polls.createdAt, dayjs().add(-1, "days").toDate()),
+        lte(polls.createdAt, subDays(new Date(), 1)),
       ),
     ),
     columns: { id: true },

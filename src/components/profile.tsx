@@ -5,6 +5,7 @@ import Calendar from "@/components/icons/calendar.svg";
 import Pencil from "@/components/icons/pencil.svg";
 import User from "@/components/icons/user.svg";
 
+import { formatDistanceToNow } from "date-fns";
 import { useDayjs } from "../utils/dayjs";
 import { trpc } from "../utils/trpc";
 import { EmptyState } from "./empty-state";
@@ -14,7 +15,7 @@ import { useSession } from "./session";
 
 export const Profile: React.VoidFunctionComponent = () => {
   const { user } = useSession();
-  const { dayjs } = useDayjs();
+  const { locale } = useDayjs();
 
   const { t } = useTranslation("app");
   const { data: userPolls } = trpc.useQuery(["user.getPolls"]);
@@ -72,7 +73,7 @@ export const Profile: React.VoidFunctionComponent = () => {
                         </a>
                         </div>
                         <div className="ml-7 text-sm text-slate-500">
-                          {dayjs(poll.createdAt).fromNow()}
+                          {formatDistanceToNow(new Date(poll.createdAt), { addSuffix: true, locale })}
                         </div>
                       </div>
                     </div>

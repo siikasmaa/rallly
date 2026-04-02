@@ -35,7 +35,7 @@ const options = ["2022-12-14", "2022-12-15", "2022-12-16", "2022-12-17"];
 const PollDemo: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("homepage");
 
-  const { dayjs } = useDayjs();
+  const { formatDate } = useDayjs();
   return (
     <div
       className="rounded-lg bg-white py-1 shadow-huge"
@@ -67,11 +67,11 @@ const PollDemo: React.VoidFunctionComponent = () => {
               <div>
                 <div className="font-semibold leading-9">
                   <div className="text-sm uppercase text-slate-400">
-                    {dayjs(d).format("ddd")}
+                    {formatDate(d, "EEE")}
                   </div>
-                  <div className="text-2xl">{dayjs(d).format("DD")}</div>
+                  <div className="text-2xl">{formatDate(d, "dd")}</div>
                   <div className="text-xs font-medium uppercase text-slate-400/75">
-                    {dayjs(d).format("MMM")}
+                    {formatDate(d, "MMM")}
                   </div>
                 </div>
               </div>

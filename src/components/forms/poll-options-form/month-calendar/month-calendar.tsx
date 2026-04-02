@@ -1,3 +1,4 @@
+import { addMinutes, differenceInMinutes, isSameDay, setHours } from "date-fns";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 
@@ -37,7 +38,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   duration,
   onChangeDuration,
 }) => {
-  const { dayjs, weekStartsOn } = useDayjs();
+  const { weekStartsOn } = useDayjs();
   const { t } = useTranslation("app");
   const isTimedEvent = options.some((option) => option.type === "timeSlot");
 
@@ -124,14 +125,12 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                     onClick={() => {
                       if (
                         datepicker.selection.some((selectedDate) =>
-                          dayjs(selectedDate).isSame(day.date, "day"),
+                          isSameDay(selectedDate, day.date),
                         )
                       ) {
                         onChange(removeAllOptionsForDay(options, day.date));
                       } else {
-                        const selectedDate = dayjs(day.date)
-                          .set("hour", 12)
-                          .toDate();
+                        const selectedDate = setHours(day.date, 12);
                         const newOption: DateTimeOption = !isTimedEvent
                           ? {
                               type: "date",
@@ -141,9 +140,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               type: "timeSlot",
                               start: formatDateWithoutTz(selectedDate),
                               end: formatDateWithoutTz(
-                                dayjs(selectedDate)
-                                  .add(duration, "minutes")
-                                  .toDate(),
+                                addMinutes(selectedDate, duration),
                               ),
                             };
 
@@ -210,9 +207,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                           );
                         }
                         const startDate = new Date(`${option.date}T12:00:00`);
-                        const endDate = dayjs(startDate)
-                          .add(duration, "minutes")
-                          .toDate();
+                        const endDate = addMinutes(startDate, duration);
                         return {
                           type: "timeSlot",
                           start: formatDateWithoutTz(startDate),
@@ -264,15 +259,13 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               <TimePicker
                                 value={startDate}
                                 onChange={(newStart) => {
-                                  let newEnd = dayjs(newStart).add(
-                                    duration,
-                                    "minutes",
-                                  );
+                                  let newEnd = addMinutes(newStart, duration);
 
-                                  if (!newEnd.isSame(newStart, "day")) {
-                                    newEnd = newEnd
-                                      .set("hour", 23)
-                                      .set("minute", 45);
+                                  if (!isSameDay(newEnd, newStart)) {
+                                    const adjusted = new Date(newEnd);
+                                    adjusted.setHours(23);
+                                    adjusted.setMinutes(45);
+                                    newEnd = adjusted;
                                   }
                                   // replace enter with updated start time
                                   onChange([
@@ -280,21 +273,19 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                     {
                                       ...option,
                                       start: formatDateWithoutTz(newStart),
-                                      end: formatDateWithoutTz(newEnd.toDate()),
+                                      end: formatDateWithoutTz(newEnd),
                                     },
                                     ...options.slice(index + 1),
                                   ]);
                                   onNavigate(newStart);
                                   onChangeDuration(
-                                    newEnd.diff(newStart, "minutes"),
+                                    differenceInMinutes(newEnd, newStart),
                                   );
                                 }}
                               />
                               <TimePicker
                                 value={new Date(option.end)}
-                                startFrom={dayjs(startDate)
-                                  .add(15, "minutes")
-                                  .toDate()}
+                                startFrom={addMinutes(startDate, 15)}
                                 onChange={(newEnd) => {
                                   onChange([
                                     ...options.slice(0, index),
@@ -306,7 +297,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                   ]);
                                   onNavigate(newEnd);
                                   onChangeDuration(
-                                    dayjs(newEnd).diff(startDate, "minutes"),
+                                    differenceInMinutes(newEnd, startDate),
                                   );
                                 }}
                               />
@@ -337,9 +328,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                   type: "timeSlot",
                                   start: startTime,
                                   end: formatDateWithoutTz(
-                                    dayjs(new Date(startTime))
-                                      .add(duration, "minutes")
-                                      .toDate(),
+                                    addMinutes(new Date(startTime), duration),
                                   ),
                                 },
                               ]);
