@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
-import { languageTag } from "@/paraglide/runtime";
+import { getLocale } from "@/paraglide/runtime";
 import * as React from "react";
 import { useAsync, useLocalStorage } from "react-use";
 
@@ -127,7 +127,7 @@ export const useDateContext = useDayjs;
 export const DayjsProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
-  const currentLanguage = languageTag();
+  const currentLanguage = getLocale();
 
   const localeConfig = dateFnsLocales[currentLanguage] ?? dateFnsLocales.en;
 

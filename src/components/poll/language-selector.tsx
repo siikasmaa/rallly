@@ -1,12 +1,12 @@
 import clsx from "clsx";
 import Cookies from "js-cookie";
-import { languageTag } from "@/paraglide/runtime";
+import { getLocale } from "@/paraglide/runtime";
 
 export const LanguageSelect: React.VoidFunctionComponent<{
   className?: string;
   onChange?: (language: string) => void;
 }> = ({ className, onChange }) => {
-  const currentLanguage = languageTag();
+  const currentLanguage = getLocale();
   return (
     <select
       className={clsx("input", className)}

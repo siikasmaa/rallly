@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bunx @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide && astro dev",
-    "build": "bunx @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide && astro build",
-    "i18n:compile": "bunx @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "dev": "bun x @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide && astro dev",
+    "build": "bun x @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide && astro build",
+    "i18n:compile": "bun x @inlang/paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "preview": "astro preview",
     "start": "astro preview",
-    "lint": "bun run eslint .",
+    "lint": "eslint .",
     "lint:tsc": "astro check && bun run tsc --noEmit",
-    "test": "bunx playwright test",
-    "db:generate": "bunx drizzle-kit generate",
-    "db:migrate": "bunx drizzle-kit migrate"
+    "test": "bun x playwright test",
+    "db:generate": "bun x drizzle-kit generate",
+    "db:migrate": "bun x drizzle-kit migrate"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
@@ -34,7 +34,7 @@
     "js-cookie": "^3.0.1",
     "linkify-react": "^4.1.0",
     "linkifyjs": "^4.1.0",
-    "mimetext": "^4.0.0",
+    "mimetext": "^3.0.0",
     "nanoid": "^3.1.30",
     "react": "^18.3.0",
     "react-big-calendar": "^1.15.0",

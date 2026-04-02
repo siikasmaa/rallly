@@ -13,7 +13,7 @@ import LoginForm from "./login-form";
 import { UserDetails } from "./profile/user-details";
 import { useSession } from "./session";
 
-export const Profile: React.VoidFunctionComponent = () => {
+const Profile: React.VoidFunctionComponent = () => {
   const { user } = useSession();
   const { locale } = useDayjs();
 
@@ -106,3 +106,5 @@ export const Profile: React.VoidFunctionComponent = () => {
     </div>
   );
 };
+
+export default Profile;
