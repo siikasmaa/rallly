@@ -1,5 +1,4 @@
-import Head from "next/head";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import React from "react";
 
 import Bonus from "./home/bonus";
@@ -11,10 +10,6 @@ const Home: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("homepage");
   return (
     <PageLayout>
-      <Head>
-        <meta name="description" content={t("metaDescription")} />
-        <title>{t("metaTitle")}</title>
-      </Head>
       <Hero />
       <Features />
       <Bonus />

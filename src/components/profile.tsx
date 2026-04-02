@@ -1,6 +1,4 @@
-import Head from "next/head";
-import Link from "next/link";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import Calendar from "@/components/icons/calendar.svg";
@@ -26,9 +24,6 @@ export const Profile: React.VoidFunctionComponent = () => {
   if (user.isGuest) {
     return (
       <div className="card my-4 p-0">
-        <Head>
-          <title>{t("profileLogin")}</title>
-        </Head>
         <LoginForm />
       </div>
     );
@@ -36,13 +31,6 @@ export const Profile: React.VoidFunctionComponent = () => {
 
   return (
     <div className="mx-auto max-w-3xl py-4 lg:mx-0">
-      <Head>
-        <title>
-          {t("profileUser", {
-            username: user.name,
-          })}
-        </title>
-      </Head>
       <div className="mb-4 flex items-center px-4">
         <div className="mr-4 inline-flex h-14 w-14 items-center justify-center rounded-lg bg-primary-50">
           <User className="h-7 text-primary-500" />
@@ -65,12 +53,10 @@ export const Profile: React.VoidFunctionComponent = () => {
         <div className="card p-0">
           <div className="flex items-center justify-between border-b p-4 shadow-sm">
             <div className="text-lg text-slate-700">{t("yourPolls")}</div>
-            <Link href="/new">
-              <a className="btn-default">
+            <a href="/new" className="btn-default">
                 <Pencil className="mr-1 h-5" />
                 {t("newPoll")}
-              </a>
-            </Link>
+            </a>
           </div>
           {createdPolls.length > 0 ? (
             <div className="w-full sm:table sm:border-collapse">
@@ -81,11 +67,9 @@ export const Profile: React.VoidFunctionComponent = () => {
                       <div>
                         <div className="flex">
                           <Calendar className="mr-2 mt-[1px] h-5 text-primary-500" />
-                          <Link href={`/admin/${poll.adminUrlId}`}>
-                            <a className="text-slate-700 hover:text-primary-500 hover:no-underline">
+                          <a href={`/admin/${poll.adminUrlId}`} className="text-slate-700 hover:text-primary-500 hover:no-underline">
                               <div>{poll.title}</div>
-                            </a>
-                          </Link>
+                        </a>
                         </div>
                         <div className="ml-7 text-sm text-slate-500">
                           {dayjs(poll.createdAt).fromNow()}

@@ -1,4 +1,4 @@
-import { usePlausible } from "next-plausible";
+const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { trpc } from "../../utils/trpc";
 import { usePoll } from "../poll-context";

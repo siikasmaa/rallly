@@ -1,18 +1,17 @@
 import clsx from "clsx";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
+import { useTranslation } from "react-i18next";
 import React from "react";
 
 import { useDayjs } from "../utils/dayjs";
 import { LanguageSelect } from "./poll/language-selector";
+
+const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 const Preferences: React.VoidFunctionComponent = () => {
   const { t } = useTranslation(["app", "common"]);
 
   const { weekStartsOn, setWeekStartsOn, timeFormat, setTimeFormat } =
     useDayjs();
-  const router = useRouter();
 
   const plausible = usePlausible();
   return (
@@ -21,7 +20,7 @@ const Preferences: React.VoidFunctionComponent = () => {
         <div className="grow text-sm text-slate-500">
           {t("common:language")}
         </div>
-        <LanguageSelect className="w-full" onChange={() => router.reload()} />
+        <LanguageSelect className="w-full" onChange={() => window.location.reload()} />
       </div>
       <div className="grow space-y-2">
         <div>

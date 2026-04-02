@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 import toast from "react-hot-toast";
 import { useCopyToClipboard } from "react-use";

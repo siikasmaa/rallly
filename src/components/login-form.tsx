@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { useForm } from "react-hook-form";
+
+const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { Button } from "@/components/button";
 import Magic from "@/components/icons/magic.svg";
@@ -19,7 +19,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
   const login = trpc.useMutation(["login"]);
 
   const plausible = usePlausible();
-  const router = useRouter();
+  const currentPath = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
   return (
     <div className="flex">
       <div className="hidden items-center rounded-tl-lg rounded-bl-lg bg-slate-50 p-6 md:flex">
@@ -33,7 +33,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
           <form
             onSubmit={handleSubmit(async ({ email }) => {
               plausible("Login requested");
-              await login.mutateAsync({ email, path: router.asPath });
+              await login.mutateAsync({ email, path: currentPath });
             })}
           >
             <div className="mb-2 text-slate-500">

@@ -1,5 +1,5 @@
 import type { Participant, Vote, VoteType } from "@/db/schema";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { trpc } from "../utils/trpc";

@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import React from "react";
 
 import Menu from "@/components/icons/menu.svg";
@@ -31,11 +30,9 @@ import { useSession } from "./session";
 
 const HomeLink = () => {
   return (
-    <Link href="/">
-      <a>
-        <Logo className="inline-block w-28 text-primary-500 transition-colors active:text-primary-600 lg:w-32" />
-      </a>
-    </Link>
+    <a href="/">
+      <Logo className="inline-block w-28 text-primary-500 transition-colors active:text-primary-600 lg:w-32" />
+    </a>
   );
 };
 
@@ -130,12 +127,10 @@ const AppMenu: React.VoidFunctionComponent<{ className?: string }> = ({
   const { t } = useTranslation(["common", "app"]);
   return (
     <div className={clsx("space-y-1", className)}>
-      <Link href="/new">
-        <a className="flex cursor-pointer items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 pr-4 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
+      <a href="/new" className="flex cursor-pointer items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 pr-4 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
           <Pencil className="h-5 opacity-75 " />
           <span className="inline-block">{t("app:newPoll")}</span>
-        </a>
-      </Link>
+      </a>
       <a
         target="_blank"
         href="https://support.rallly.co"
@@ -267,12 +262,10 @@ const StandardLayout: React.VoidFunctionComponent<{
                 <HomeLink />
               </div>
               <div className="mb-4">
-                <Link href="/new">
-                  <a className="group mb-1 flex items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20">
+                <a href="/new" className="group mb-1 flex items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20">
                     <Pencil className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
                     <span className="grow text-left">{t("app:newPoll")}</span>
-                  </a>
-                </Link>
+              </a>
                 <a
                   target="_blank"
                   href="https://support.rallly.co"
@@ -350,11 +343,9 @@ const StandardLayout: React.VoidFunctionComponent<{
             </div>
             <div className="flex flex-col items-center space-y-4 px-6 pt-3 pb-6 text-slate-400 lg:h-16 lg:flex-row lg:space-y-0 lg:space-x-6 lg:py-0 lg:px-8 lg:pb-3">
               <div>
-                <Link href="https://rallly.co">
-                  <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+                <a href="https://rallly.co" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
                     <Logo className="h-5" />
-                  </a>
-                </Link>
+                </a>
               </div>
               <div className="hidden text-slate-300 lg:block">&bull;</div>
               <div className="flex items-center justify-center space-x-6 md:justify-start">
@@ -366,16 +357,12 @@ const StandardLayout: React.VoidFunctionComponent<{
                 >
                   {t("common:support")}
                 </a>
-                <Link href="https://github.com/lukevella/rallly/discussions">
-                  <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+                <a href="https://github.com/lukevella/rallly/discussions" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
                     {t("common:discussions")}
-                  </a>
-                </Link>
-                <Link href="https://blog.rallly.co">
-                  <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+                </a>
+                <a href="https://blog.rallly.co" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
                     {t("common:blog")}
-                  </a>
-                </Link>
+                </a>
                 <div className="hidden text-slate-300 lg:block">&bull;</div>
                 <div className="flex items-center space-x-6">
                   <a

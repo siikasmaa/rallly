@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 
 import Discord from "@/components/icons/discord.svg";
@@ -16,7 +14,6 @@ import { LanguageSelect } from "../poll/language-selector";
 
 const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("common");
-  const router = useRouter();
   return (
     <div className="mt-16 bg-gradient-to-b from-gray-50/0 via-gray-50 to-gray-50 ">
       <div className="mx-auto max-w-7xl space-y-8 p-8 lg:flex lg:space-x-16 lg:space-y-0">
@@ -86,11 +83,9 @@ const Footer: React.VoidFunctionComponent = () => {
               </a>
             </li>
             <li>
-              <Link href="https://blog.rallly.co">
-                <a className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
+              <a href="https://blog.rallly.co" className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
                   {t("blog")}
-                </a>
-              </Link>
+              </a>
             </li>
             <li>
               <a
@@ -101,11 +96,9 @@ const Footer: React.VoidFunctionComponent = () => {
               </a>
             </li>
             <li>
-              <Link href="/privacy-policy">
-                <a className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
+              <a href="/privacy-policy" className="inline-block font-normal text-slate-400 hover:text-slate-800 hover:no-underline">
                   {t("privacyPolicy")}
-                </a>
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
@@ -137,7 +130,8 @@ const Footer: React.VoidFunctionComponent = () => {
           <LanguageSelect
             className="mb-4 w-full"
             onChange={(locale) => {
-              router.push(router.asPath, router.asPath, { locale });
+              const currentPath = window.location.pathname + window.location.search;
+              window.location.href = `/${locale}${currentPath}`;
             }}
           />
           <a

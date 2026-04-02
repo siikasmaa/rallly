@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import ChevronLeft from "../../icons/chevron-left.svg";

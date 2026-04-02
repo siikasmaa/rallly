@@ -9,7 +9,6 @@ import {
 import { Menu } from "@headlessui/react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import * as React from "react";
 
 import { transformOriginByPlacement } from "@/utils/constants";
@@ -89,17 +88,16 @@ const AnchorLink: React.VoidFunctionComponent<{
   className?: string;
 }> = ({ href = "", className, children, ...forwardProps }) => {
   return (
-    <Link href={href} passHref>
-      <a
-        className={clsx(
-          "font-normal hover:text-white hover:no-underline",
-          className,
-        )}
-        {...forwardProps}
-      >
-        {children}
-      </a>
-    </Link>
+    <a
+      href={href}
+      className={clsx(
+        "font-normal hover:text-white hover:no-underline",
+        className,
+      )}
+      {...forwardProps}
+    >
+      {children}
+    </a>
   );
 };
 

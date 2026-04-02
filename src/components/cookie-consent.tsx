@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Cookies from "js-cookie";
-import Link from "next/link";
 import * as React from "react";
 import ReactDOM from "react-dom";
 
@@ -38,11 +37,9 @@ const CookieConsentPopover: React.VoidFunctionComponent = () => {
             browsing experience on this website.
           </div>
           <div className="flex items-center space-x-6">
-            <Link href="/privacy-policy">
-              <a className="hover:text-primary-500 text-slate-400">
+            <a href="/privacy-policy" className="hover:text-primary-500 text-slate-400">
                 Privacy Policy
-              </a>
-            </Link>
+            </a>
             <button
               onClick={() => {
                 Cookies.set("rallly_cookie_consent", "1", { expires: 365 });

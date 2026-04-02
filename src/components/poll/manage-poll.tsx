@@ -1,5 +1,5 @@
 import { Placement } from "@floating-ui/react-dom-interactions";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { Button } from "@/components/button";

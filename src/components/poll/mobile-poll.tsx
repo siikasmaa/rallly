@@ -1,7 +1,7 @@
 import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import smoothscroll from "smoothscroll-polyfill";

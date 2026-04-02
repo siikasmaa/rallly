@@ -1,10 +1,8 @@
-import { NextPage } from "next";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { useSessionStorage } from "react-use";
+
+const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { encodeDateOption } from "../utils/date-time-utils";
 import { trpc } from "../utils/trpc";
@@ -44,15 +42,13 @@ export interface CreatePollPageProps extends SessionProps {
   view?: "week" | "month";
 }
 
-const Page: NextPage<CreatePollPageProps> = ({
+const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
   title,
   location,
   description,
   view,
 }) => {
   const { t } = useTranslation("app");
-
-  const router = useRouter();
 
   const session = useSession();
 
@@ -104,7 +100,7 @@ const Page: NextPage<CreatePollPageProps> = ({
         },
       });
       setPersistedFormData(initialNewEventData);
-      router.replace(`/admin/${res.urlId}?sharing=true`);
+      window.location.replace(`/admin/${res.urlId}?sharing=true`);
     },
   });
 
@@ -150,10 +146,6 @@ const Page: NextPage<CreatePollPageProps> = ({
 
   return (
     <StandardLayout>
-      <Head>
-        <title>{formData?.eventDetails?.title ?? t("newPoll")}</title>
-        <meta name="robots" content="noindex,nofollow" />
-      </Head>
       <div className="max-w-full py-4 md:px-3 lg:px-6">
         <div className="mx-auto w-fit max-w-full lg:mx-0">
           <div className="mb-4 flex items-center justify-center space-x-4 px-4 lg:justify-start">

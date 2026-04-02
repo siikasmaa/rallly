@@ -1,12 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { NextPage } from "next";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
+import { useTranslation } from "react-i18next";
 import React from "react";
 import toast from "react-hot-toast";
 import { useMount } from "react-use";
+
+const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { Button } from "@/components/button";
 import LockClosed from "@/components/icons/lock-closed.svg";
@@ -33,10 +31,10 @@ const Discussion = React.lazy(() => import("@/components/discussion"));
 const DesktopPoll = React.lazy(() => import("@/components/poll/desktop-poll"));
 const MobilePoll = React.lazy(() => import("@/components/poll/mobile-poll"));
 
-const PollPage: NextPage = () => {
+const PollPage: React.VoidFunctionComponent = () => {
   const { poll, urlId, admin } = usePoll();
   const { participants } = useParticipants();
-  const router = useRouter();
+  const queryParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
 
   useTouchBeacon(poll.id);
 
@@ -63,21 +61,20 @@ const PollPage: NextPage = () => {
       toast.error(t("linkHasExpired"));
     },
     onSettled: () => {
-      router.replace(`/admin/${router.query.urlId}`, undefined, {
-        shallow: true,
-      });
+      const urlIdParam = queryParams.get("urlId") ?? urlId;
+      window.location.replace(`/admin/${urlIdParam}`);
     },
   });
 
   useMount(() => {
-    const { code } = router.query;
+    const code = queryParams.get("code");
     if (typeof code === "string" && !poll.verified) {
       verifyEmail.mutate({ code, pollId: poll.id });
     }
   });
 
   React.useEffect(() => {
-    if (router.query.unsubscribe) {
+    if (queryParams.get("unsubscribe")) {
       updatePollMutation(
         { urlId: urlId, notifications: false },
         {
@@ -87,11 +84,10 @@ const PollPage: NextPage = () => {
           },
         },
       );
-      router.replace(`/admin/${router.query.urlId}`, undefined, {
-        shallow: true,
-      });
+      const urlIdParam = queryParams.get("urlId") ?? urlId;
+      window.location.replace(`/admin/${urlIdParam}`);
     }
-  }, [plausible, urlId, router, updatePollMutation, t]);
+  }, [plausible, urlId, queryParams, updatePollMutation, t]);
 
   const checkIfWideScreen = () => window.innerWidth > 640;
 
@@ -115,15 +111,11 @@ const PollPage: NextPage = () => {
   );
 
   const [isSharingVisible, setSharingVisible] = React.useState(
-    !!router.query.sharing,
+    !!queryParams.get("sharing"),
   );
   return (
     <UserAvatarProvider seed={poll.id} names={names}>
       <div className="relative max-w-full py-4 md:px-4">
-        <Head>
-          <title>{poll.title}</title>
-          <meta name="robots" content="noindex,nofollow" />
-        </Head>
         <div
           className="mx-auto max-w-full lg:mx-0"
           style={{

@@ -1,7 +1,7 @@
 import type { Participant, VoteType } from "@/db/schema";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import ChevronDown from "@/components/icons/chevron-down.svg";

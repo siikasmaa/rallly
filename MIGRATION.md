@@ -277,20 +277,29 @@ Nodemailer requires Node.js `net`/`tls` modules, unavailable in Workers.
 
 ## Phase 6: Cleanup
 
-- [ ] Remove all Next.js dependencies (`next`, `eslint-config-next`, `@next/bundle-analyzer`)
-- [ ] Remove all Prisma dependencies and files
-- [ ] Remove `next-i18next`, `react-i18next`
-- [ ] Remove `iron-session`, `jose`
-- [ ] Remove `nodemailer`, `eta`
-- [ ] Remove `@sentry/nextjs`
-- [ ] Remove `next-plausible`
-- [ ] Remove `@svgr/webpack` (use Astro's built-in SVG handling or `vite-plugin-svgr`)
-- [ ] Remove Next.js config files (`next.config.js`, `next-i18next.config.js`, `sentry.*.config.js`)
-- [ ] Upgrade React to v18+ (Astro supports it)
+- [x] Remove all Next.js dependencies (`next`, `eslint-config-next`, `@next/bundle-analyzer`)
+- [x] Remove all Prisma dependencies and files
+- [x] Remove `next-i18next` (kept `react-i18next` — works standalone)
+- [x] Remove `iron-session`, `jose`
+- [x] Remove `nodemailer`, `eta`
+- [x] Remove `@sentry/nextjs`
+- [x] Remove `next-plausible`
+- [x] Remove `@svgr/webpack`
+- [x] Remove Next.js config files (`next.config.js`, `next-i18next.config.js`, `sentry.*.config.js`)
+- [x] Upgrade React to v18+ (Astro supports it)
 - [ ] Upgrade remaining dependencies to latest versions
-- [ ] Update TypeScript config for Astro
+- [x] Update TypeScript config for Astro
 - [ ] Run full E2E test suite and fix regressions
-- [ ] Update `sample.env` with new/changed variables
+- [x] Update `sample.env` with new/changed variables
+- [x] Replace all `next/link` → `<a>` tags in 7 components
+- [x] Replace all `next/router` → `window.location` in 6 components
+- [x] Replace all `next/head` → removed (handled in Astro layouts)
+- [x] Replace all `next/dynamic` → `React.lazy`
+- [x] Replace `next-plausible` hooks with no-ops in 9 components
+- [x] Replace `next-i18next` imports → `react-i18next` in 39 components
+- [x] Remove old Next.js pages (`_app.tsx`, `_document.tsx`, `_error.tsx`, etc.)
+- [x] Remove old email template HTML files
+- [x] Delete `src/utils/with-page-translations.ts`
 
 ---
 

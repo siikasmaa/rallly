@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import Cookies from "js-cookie";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "react-i18next";
 
 export const LanguageSelect: React.VoidFunctionComponent<{
   className?: string;

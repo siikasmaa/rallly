@@ -1,8 +1,5 @@
 import clsx from "clsx";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 import { createBreakpoint } from "react-use";
 
@@ -12,7 +9,7 @@ import Logo from "~/public/logo.svg";
 
 import Footer from "./page-layout/footer";
 
-const Popover = dynamic(() => import("./popover"), { ssr: false });
+const Popover = React.lazy(() => import("./popover"));
 export interface PageLayoutProps {
   children?: React.ReactNode;
 }
@@ -22,43 +19,42 @@ const useBreakpoint = createBreakpoint({ sm: 640, md: 768, lg: 1024 });
 const Menu: React.VoidFunctionComponent<{ className: string }> = ({
   className,
 }) => {
-  const { pathname } = useRouter();
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const { t } = useTranslation("common");
   return (
     <nav className={className}>
-      <Link href="/">
-        <a
-          className={clsx(
-            "text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2",
-            {
-              "pointer-events-none font-bold text-gray-600":
-                pathname === "/home",
-            },
-          )}
-        >
-          {t("home")}
-        </a>
-      </Link>
-      <Link href="https://blog.rallly.co">
-        <a
-          className={clsx(
-            "text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2",
-          )}
-        >
-          {t("blog")}
-        </a>
-      </Link>
+      <a
+        href="/"
+        className={clsx(
+          "text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2",
+          {
+            "pointer-events-none font-bold text-gray-600":
+              pathname === "/home",
+          },
+        )}
+      >
+        {t("home")}
+      </a>
+      <a
+        href="https://blog.rallly.co"
+        className={clsx(
+          "text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2",
+        )}
+      >
+        {t("blog")}
+      </a>
       <a
         href="https://support.rallly.co"
         className="text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2"
       >
         {t("support")}
       </a>
-      <Link href="https://github.com/lukevella/rallly">
-        <a className="text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2">
-          <Github className="w-6" />
-        </a>
-      </Link>
+      <a
+        href="https://github.com/lukevella/rallly"
+        className="text-gray-400 transition-colors hover:text-primary-500 hover:no-underline hover:underline-offset-2"
+      >
+        <Github className="w-6" />
+      </a>
     </nav>
   );
 };
@@ -73,11 +69,9 @@ const PageLayout: React.VoidFunctionComponent<PageLayoutProps> = ({
       <div className="mx-auto flex max-w-7xl items-center py-8 px-8">
         <div className="grow">
           <div className="relative inline-block">
-            <Link href="/">
-              <a>
+            <a href="/">
                 <Logo className="w-40 text-primary-500" alt="Rallly" />
-              </a>
-            </Link>
+          </a>
             <span className="absolute -bottom-6 right-0 text-sm text-slate-400 transition-colors">
               <Trans t={t} i18nKey="3Ls" components={{ e: <em /> }} />
             </span>

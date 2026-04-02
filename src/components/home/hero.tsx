@@ -1,6 +1,5 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
 import { motion } from "framer-motion";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { DayjsProvider } from "../../utils/dayjs";

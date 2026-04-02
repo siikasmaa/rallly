@@ -38,6 +38,8 @@
     "react-dom": "^18.3.0",
     "react-hook-form": "^7.31.3",
     "react-hot-toast": "^2.2.0",
+    "react-i18next": "^11.16.9",
+    "i18next": "^22.0.0",
     "react-linkify": "^1.0.0-alpha",
     "react-query": "^3.34.12",
     "react-use": "^17.3.2",

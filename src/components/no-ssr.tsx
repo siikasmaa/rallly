@@ -1,10 +1,19 @@
-import dynamic from "next/dynamic";
 import React from "react";
 
-const NoSsr = (props: { children?: React.ReactNode }) => (
-  <React.Fragment>{props.children}</React.Fragment>
-);
+const NoSsr: React.VoidFunctionComponent<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
+  const [mounted, setMounted] = React.useState(false);
 
-export default dynamic(() => Promise.resolve(NoSsr), {
-  ssr: false,
-});
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <React.Fragment>{children}</React.Fragment>;
+};
+
+export default NoSsr;
