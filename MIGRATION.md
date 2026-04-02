@@ -327,12 +327,12 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 
 **Tasks:**
 
-- [ ] Install `elysia`, `@elysiajs/eden`, `@sinclair/typebox`
-- [ ] Remove `@trpc/client`, `@trpc/react`, `@trpc/server`, `superjson`
-- [ ] Remove `react-query` (Eden provides its own typed client)
-- [ ] Remove `zod` (replaced by TypeBox for API schemas; keep if used elsewhere)
-- [ ] Create Elysia app instance with `CloudflareAdapter` in `src/server/app.ts`
-- [ ] Rewrite all API routes as Elysia routes with TypeBox schemas:
+- [x] Install `elysia`, `@elysiajs/eden`
+- [x] Remove `@trpc/client`, `@trpc/react`, `@trpc/server`, `superjson`
+- [x] Remove `react-query` (Eden provides its own typed client)
+- [x] Remove `zod` (replaced by TypeBox for API schemas)
+- [x] Create Elysia app instance with `CloudflareAdapter` in `src/server/app.ts`
+- [x] Rewrite all API routes as Elysia routes with TypeBox schemas:
   - `polls` — CRUD, options management, admin/participant URL lookups
   - `polls/participants` — list, add, update, delete
   - `polls/comments` — list, add, delete
@@ -341,52 +341,42 @@ const app = new Elysia({ adapter: CloudflareAdapter })
   - `session` — get, destroy
   - `login` — send login email
   - `user` — getPolls, changeName
-- [ ] Create Astro API catch-all endpoint that delegates to Elysia `app.handle()`
-- [ ] Export Elysia app type for Eden client inference
-- [ ] Create Eden treaty client in `src/utils/api.ts` replacing `src/utils/trpc.ts`
+- [x] Create Astro API catch-all endpoint that delegates to Elysia `app.handle()`
+- [x] Export Elysia app type for Eden client inference
+- [x] Create Eden treaty client in `src/utils/api.ts` replacing `src/utils/trpc.ts`
 - [ ] Update `wrangler.toml` `compatibility_date` to `"2025-06-01"` or later
-- [ ] Rewrite all component API calls from `trpc.useQuery`/`trpc.useMutation` to Eden
-- [ ] Remove `src/server/createRouter.ts`
-- [ ] Remove `src/server/context.ts` (Elysia has its own context/derive pattern)
+- [x] Rewrite all component API calls from `trpc.useQuery`/`trpc.useMutation` to Eden (14 files)
+- [x] Remove `src/server/createRouter.ts`
+- [x] Remove `src/server/context.ts` (Elysia has its own context/derive pattern)
 
 ### 7b: Remove axios — use native fetch
 
 axios is already unused in imports but was listed as a dependency. Ensure no references remain.
 
-- [ ] Confirm no `axios` imports exist in codebase
-- [ ] Remove `axios` from `package.json` (already done)
+- [x] Confirm no `axios` imports exist in codebase
+- [x] Remove `axios` from `package.json` (already done)
 
 ### 7c: Remove lodash — use native alternatives
 
 Only `keyBy` from lodash is used. Replace with native code.
 
-- [ ] Replace `lodash/keyBy` with inline `Object.fromEntries` / `reduce`
+- [x] Replace `lodash/keyBy` with inline `Object.fromEntries` / `reduce`
   - `keyBy(arr, 'id')` → `Object.fromEntries(arr.map(item => [item.id, item]))`
-- [ ] Remove `lodash` and `@types/lodash` from `package.json`
+- [x] Remove `lodash` and `@types/lodash` from `package.json`
 
 ### 7d: Migrate time libraries to date-fns
 
 Currently using `dayjs`, `spacetime`, and `timezone-soft`. Consolidate to **date-fns** (tree-shakeable, no global state, native ESM).
 
-- [ ] Install `date-fns` and `date-fns-tz` (for timezone support)
-- [ ] Rewrite `src/utils/date-time-utils.ts`:
-  - `dayjs(date).format("D")` → `format(date, "d")`
-  - `dayjs(date).format("ddd")` → `format(date, "EEE")`
-  - `dayjs(date).format("MMM")` → `format(date, "MMM")`
-  - `dayjs(date).format("YYYY")` → `format(date, "yyyy")`
-  - `dayjs(date).format("LT")` → `format(date, "p")`
-  - `dayjs(date).diff(other, "hours")` → `differenceInHours(date, other)`
-  - `dayjs(date).tz(tz, true).tz(targetTz)` → `utcToZonedTime` / `zonedTimeToUtc`
-  - `dayjs(date).isBefore(other)` → `isBefore(date, other)`
-  - `dayjs(date).isSame(other, "day")` → `isSameDay(date, other)`
-  - `dayjs(date).add(n, "days")` → `addDays(date, n)`
-  - `dayjs(date).add(n, "minutes")` → `addMinutes(date, n)`
-- [ ] Rewrite `src/utils/dayjs.tsx` (DayjsProvider / locale loading) for date-fns
-- [ ] Update `src/server/routers/polls/demo.ts` — dayjs usage in demo data generation
-- [ ] Update `src/pages/api/house-keeping.ts` — dayjs usage in date comparisons
-- [ ] Update all React components that import/use dayjs directly
-- [ ] Remove `dayjs`, `spacetime`, `timezone-soft` from `package.json`
-- [ ] Remove `react-big-calendar` if it depends on date adapter (or configure date-fns adapter)
+- [x] Install `date-fns` and `date-fns-tz` (for timezone support)
+- [x] Rewrite `src/utils/date-time-utils.ts` with date-fns equivalents
+- [x] Rewrite `src/utils/dayjs.tsx` as date-fns provider with dynamic locale loading
+- [x] Update demo.ts — dayjs → subMinutes
+- [x] Update house-keeping.ts — dayjs → subDays/isBefore
+- [x] Update all 20 React components that import/use dayjs directly
+- [x] Remove `dayjs`, `spacetime`, `timezone-soft` from `package.json`
+- [x] Replace custom 358-line dayjs-localizer with built-in date-fns localizer
+- [x] Replace spacetime/timezone-soft with Intl.supportedValuesOf + date-fns-tz
 
 ### 7e: Update outdated packages
 
@@ -405,23 +395,19 @@ Currently using `dayjs`, `spacetime`, and `timezone-soft`. Consolidate to **date
 | `@typescript-eslint/*` | v5 | v8+ | Match ESLint v9 |
 | `@types/react-big-calendar` | v0.31 | Latest | Match calendar version or remove if calendar replaced |
 
-- [ ] Replace `@floating-ui/react-dom-interactions` → `@floating-ui/react`
-  - Update imports in popover, tooltip, dropdown, timezone picker
-- [ ] Upgrade `framer-motion` v6 → v11+
-  - Check for deprecated APIs: `AnimatePresence`, `motion` should still work
-  - `useMotionValue`, `useTransform` API may have changed
-- [ ] Upgrade `@headlessui/react` v1 → v2
-  - Dialog, Popover, Switch component API changes
-- [ ] Remove `smoothscroll-polyfill` and its `@types` package
-  - Remove `import "smoothscroll-polyfill"` from any files
-- [ ] Replace `react-linkify` → `linkify-react` + `linkifyjs`
-- [ ] Upgrade `eslint` v7 → v9 with flat config
-  - Rewrite `.eslintrc.json` → `eslint.config.js`
-  - Update `@typescript-eslint/*` to v8+
-  - Replace `eslint-config-next` references (already removed)
-- [ ] Upgrade `prettier` v2 → v3
-- [ ] Evaluate `tailwindcss` v3 → v4 upgrade (large scope, may defer)
-- [ ] Upgrade `react-hot-toast` to latest v2.x
+- [x] Replace `@floating-ui/react-dom-interactions` → `@floating-ui/react`
+  - Updated imports in popover, tooltip, dropdown, timezone picker, manage-poll, constants
+- [x] Upgrade `framer-motion` v6 → v11.15
+- [x] Upgrade `@headlessui/react` v1 → v2.2
+- [x] Remove `smoothscroll-polyfill` and its `@types` package
+- [x] Replace `react-linkify` → `linkify-react` + `linkifyjs`
+- [x] Upgrade `eslint` v7 → v9.16, `@typescript-eslint/*` v5 → v8.18
+- [x] Upgrade `prettier` v2 → v3.4
+- [x] Upgrade `tailwindcss` v3.0 → v3.4 (v4 deferred — large scope)
+- [x] Upgrade `react-hot-toast` v2.2 → v2.4
+- [x] Upgrade `react-big-calendar` v0.38 → v1.15
+- [x] Upgrade `react-i18next` v11 → v15, `i18next` v22 → v24
+- [x] Upgrade `@playwright/test` → v1.49
 
 ---
 

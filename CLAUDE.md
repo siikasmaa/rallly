@@ -30,12 +30,13 @@ Playwright requires browser install first: `bunx playwright install --with-deps 
 - `@/*` maps to `src/*`
 - `~/*` maps to project root ``./*``
 
-### API Layer (tRPC)
-- Astro API endpoint at `src/pages/api/trpc/[...trpc].ts` using fetch adapter
-- Server context (session handling): `src/server/context.ts`
-- Routers: `src/server/routers/` -- polls, participants, comments, session, login, user, verification, demo
-- Client setup: `src/utils/trpc.ts`
-- Uses SuperJSON for serialization and React Query for client-side caching
+### API Layer (Elysia + Eden)
+- Elysia app with all routes: `src/server/app.ts` (CloudflareAdapter + .compile())
+- Astro catch-all endpoint: `src/pages/api/[...path].ts` delegates to Elysia
+- Eden treaty client: `src/utils/api.ts` for typed API calls from components
+- Session context via Elysia `.derive()` parsing encrypted cookies
+- TypeBox (`t` from Elysia) for request/response validation
+- Routes: /api/polls/*, /api/session/*, /api/login, /api/user/*
 
 ### Database (Drizzle + Cloudflare D1)
 - Schema: `src/db/schema.ts`
