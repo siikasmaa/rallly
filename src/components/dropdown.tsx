@@ -5,7 +5,7 @@ import {
   offset,
   Placement,
   useFloating,
-} from "@floating-ui/react-dom-interactions";
+} from "@floating-ui/react";
 import { Menu } from "@headlessui/react";
 import clsx from "clsx";
 import { motion } from "framer-motion";

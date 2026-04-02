@@ -5,7 +5,7 @@ import {
   Placement,
   shift,
   useFloating,
-} from "@floating-ui/react-dom-interactions";
+} from "@floating-ui/react";
 import { Popover as HeadlessPopover } from "@headlessui/react";
 import clsx from "clsx";
 import { motion } from "framer-motion";

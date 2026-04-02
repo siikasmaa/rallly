@@ -4,7 +4,7 @@ import {
   offset,
   size,
   useFloating,
-} from "@floating-ui/react-dom-interactions";
+} from "@floating-ui/react";
 import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
 import { addMinutes, format, getHours, getMinutes, startOfDay } from "date-fns";

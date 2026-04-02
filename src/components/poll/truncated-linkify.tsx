@@ -1,10 +1,17 @@
+import Linkify from "linkify-react";
 import * as React from "react";
-import ReactLinkify from "react-linkify";
 
 import Tooltip from "../tooltip";
 
-export const truncateLink = (href: string, text: string, key: number) => {
-  const textWithoutProtocol = text.replace(/^https?:\/\//i, "");
+const renderLink = ({
+  attributes,
+  content,
+}: {
+  attributes: Record<string, any>;
+  content: string;
+}) => {
+  const { href, ...rest } = attributes;
+  const textWithoutProtocol = content.replace(/^https?:\/\//i, "");
   const beginningOfPath = textWithoutProtocol.indexOf("/");
   let finalText = textWithoutProtocol;
   if (beginningOfPath !== -1) {
@@ -13,20 +20,19 @@ export const truncateLink = (href: string, text: string, key: number) => {
 
   if (finalText.length === textWithoutProtocol.length) {
     return (
-      <a key={key} href={href} rel="nofollow noreferrer">
+      <a href={href} rel="nofollow noreferrer" {...rest}>
         {finalText}
       </a>
     );
   } else {
-    finalText += "…";
+    finalText += "\u2026";
     return (
       <Tooltip
-        key={key}
         content={
           <div className="max-w-md break-all font-mono text-xs">{href}</div>
         }
       >
-        <a href={href} rel="nofollow noreferrer">
+        <a href={href} rel="nofollow noreferrer" {...rest}>
           {finalText}
         </a>
       </Tooltip>
@@ -37,9 +43,7 @@ export const truncateLink = (href: string, text: string, key: number) => {
 const TruncatedLinkify: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
-  return (
-    <ReactLinkify componentDecorator={truncateLink}>{children}</ReactLinkify>
-  );
+  return <Linkify options={{ render: renderLink }}>{children}</Linkify>;
 };
 
 export default TruncatedLinkify;

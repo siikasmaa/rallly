@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import smoothscroll from "smoothscroll-polyfill";
 
 import Check from "@/components/icons/check.svg";
 import ChevronDown from "@/components/icons/chevron-down.svg";
@@ -31,7 +30,6 @@ import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 import UserAvatar from "./user-avatar";
 
 if (typeof window !== "undefined") {
-  smoothscroll.polyfill();
 }
 
 const MobilePoll: React.VoidFunctionComponent = () => {

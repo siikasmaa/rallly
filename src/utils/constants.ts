@@ -1,4 +1,4 @@
-import { Placement } from "@floating-ui/react-dom-interactions";
+import { Placement } from "@floating-ui/react";
 
 export const isInMaintenanceMode = process.env.MAINTENANCE_MODE === "true";
 

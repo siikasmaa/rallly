@@ -1,4 +1,4 @@
-import { Placement } from "@floating-ui/react-dom-interactions";
+import { Placement } from "@floating-ui/react";
 import { Trans, useTranslation } from "react-i18next";
 import * as React from "react";
 
