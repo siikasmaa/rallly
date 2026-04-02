@@ -15,7 +15,7 @@ Tracking document for migrating Rallly from its current stack to:
 | Package manager | Yarn | Bun |
 | Runtime | Node.js 16 | Bun / Cloudflare Workers runtime |
 | Framework | Next.js 12 (Pages Router) | Astro |
-| API | tRPC v9 via Next.js API routes | tRPC v11 via Astro endpoints or Cloudflare Workers |
+| API | tRPC v9 via Next.js API routes | Elysia + Eden (Cloudflare Workers native) |
 | ORM | Prisma 4.1 (PostgreSQL) | Drizzle ORM (D1-native) |
 | Database | PostgreSQL 14.2 | Cloudflare D1 (SQLite) |
 | Auth/session | iron-session (encrypted cookies) | Astro middleware + cookie-based sessions |
@@ -303,6 +303,128 @@ Nodemailer requires Node.js `net`/`tls` modules, unavailable in Workers.
 
 ---
 
+## Phase 7: Modernize Dependencies & Replace tRPC with Elysia
+
+### 7a: Replace tRPC with Elysia + Eden
+
+tRPC v9 is EOL and deeply embedded. Rather than upgrading to tRPC v11 (breaking change across every router and component), replace the entire API layer with **Elysia** (lightweight, fast, Cloudflare Workers native) using **Eden** for end-to-end type safety and **TypeBox** for request/response schemas.
+
+Reference: https://elysiajs.com/integrations/cloudflare-worker
+
+**Elysia on Cloudflare Workers setup:**
+- Requires `compatibility_date = "2025-06-01"` or later in `wrangler.toml`
+- Entry point must use `CloudflareAdapter` and call `.compile()`
+- No `fs` module — file operations and Static Plugin unsupported (already handled)
+
+```typescript
+import { Elysia } from 'elysia'
+import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
+
+const app = new Elysia({ adapter: CloudflareAdapter })
+  .get('/', () => 'Hello')
+  .compile()
+```
+
+**Tasks:**
+
+- [ ] Install `elysia`, `@elysiajs/eden`, `@sinclair/typebox`
+- [ ] Remove `@trpc/client`, `@trpc/react`, `@trpc/server`, `superjson`
+- [ ] Remove `react-query` (Eden provides its own typed client)
+- [ ] Remove `zod` (replaced by TypeBox for API schemas; keep if used elsewhere)
+- [ ] Create Elysia app instance with `CloudflareAdapter` in `src/server/app.ts`
+- [ ] Rewrite all API routes as Elysia routes with TypeBox schemas:
+  - `polls` — CRUD, options management, admin/participant URL lookups
+  - `polls/participants` — list, add, update, delete
+  - `polls/comments` — list, add, delete
+  - `polls/verification` — verify token, request verification email
+  - `polls/demo` — create demo poll
+  - `session` — get, destroy
+  - `login` — send login email
+  - `user` — getPolls, changeName
+- [ ] Create Astro API catch-all endpoint that delegates to Elysia `app.handle()`
+- [ ] Export Elysia app type for Eden client inference
+- [ ] Create Eden treaty client in `src/utils/api.ts` replacing `src/utils/trpc.ts`
+- [ ] Update `wrangler.toml` `compatibility_date` to `"2025-06-01"` or later
+- [ ] Rewrite all component API calls from `trpc.useQuery`/`trpc.useMutation` to Eden
+- [ ] Remove `src/server/createRouter.ts`
+- [ ] Remove `src/server/context.ts` (Elysia has its own context/derive pattern)
+
+### 7b: Remove axios — use native fetch
+
+axios is already unused in imports but was listed as a dependency. Ensure no references remain.
+
+- [ ] Confirm no `axios` imports exist in codebase
+- [ ] Remove `axios` from `package.json` (already done)
+
+### 7c: Remove lodash — use native alternatives
+
+Only `keyBy` from lodash is used. Replace with native code.
+
+- [ ] Replace `lodash/keyBy` with inline `Object.fromEntries` / `reduce`
+  - `keyBy(arr, 'id')` → `Object.fromEntries(arr.map(item => [item.id, item]))`
+- [ ] Remove `lodash` and `@types/lodash` from `package.json`
+
+### 7d: Migrate time libraries to date-fns
+
+Currently using `dayjs`, `spacetime`, and `timezone-soft`. Consolidate to **date-fns** (tree-shakeable, no global state, native ESM).
+
+- [ ] Install `date-fns` and `date-fns-tz` (for timezone support)
+- [ ] Rewrite `src/utils/date-time-utils.ts`:
+  - `dayjs(date).format("D")` → `format(date, "d")`
+  - `dayjs(date).format("ddd")` → `format(date, "EEE")`
+  - `dayjs(date).format("MMM")` → `format(date, "MMM")`
+  - `dayjs(date).format("YYYY")` → `format(date, "yyyy")`
+  - `dayjs(date).format("LT")` → `format(date, "p")`
+  - `dayjs(date).diff(other, "hours")` → `differenceInHours(date, other)`
+  - `dayjs(date).tz(tz, true).tz(targetTz)` → `utcToZonedTime` / `zonedTimeToUtc`
+  - `dayjs(date).isBefore(other)` → `isBefore(date, other)`
+  - `dayjs(date).isSame(other, "day")` → `isSameDay(date, other)`
+  - `dayjs(date).add(n, "days")` → `addDays(date, n)`
+  - `dayjs(date).add(n, "minutes")` → `addMinutes(date, n)`
+- [ ] Rewrite `src/utils/dayjs.tsx` (DayjsProvider / locale loading) for date-fns
+- [ ] Update `src/server/routers/polls/demo.ts` — dayjs usage in demo data generation
+- [ ] Update `src/pages/api/house-keeping.ts` — dayjs usage in date comparisons
+- [ ] Update all React components that import/use dayjs directly
+- [ ] Remove `dayjs`, `spacetime`, `timezone-soft` from `package.json`
+- [ ] Remove `react-big-calendar` if it depends on date adapter (or configure date-fns adapter)
+
+### 7e: Update outdated packages
+
+| Package | Current | Target | Notes |
+|---|---|---|---|
+| `@floating-ui/react-dom-interactions` | v0.4 | Remove | Deprecated; merged into `@floating-ui/react` |
+| `@floating-ui/react` | — | Install | Replacement for the above |
+| `framer-motion` | v6.3 | v11+ | Major update; React 18 support, new API surface |
+| `@headlessui/react` | v1.5 | v2+ | Breaking changes in dialog/transition APIs |
+| `eslint` | v7.26 | v9+ | Flat config format, new rule defaults |
+| `prettier` | v2.3 | v3+ | Trailing comma default changed, minor formatting |
+| `tailwindcss` | v3.0 | v4+ | New engine, CSS-first config, breaking changes |
+| `react-linkify` | alpha | Remove | Unmaintained; replace with `linkify-react` |
+| `smoothscroll-polyfill` | v0.4 | Remove | All modern browsers support smooth scroll natively |
+| `react-hot-toast` | v2.2 | v2.4+ | Minor update |
+| `@typescript-eslint/*` | v5 | v8+ | Match ESLint v9 |
+| `@types/react-big-calendar` | v0.31 | Latest | Match calendar version or remove if calendar replaced |
+
+- [ ] Replace `@floating-ui/react-dom-interactions` → `@floating-ui/react`
+  - Update imports in popover, tooltip, dropdown, timezone picker
+- [ ] Upgrade `framer-motion` v6 → v11+
+  - Check for deprecated APIs: `AnimatePresence`, `motion` should still work
+  - `useMotionValue`, `useTransform` API may have changed
+- [ ] Upgrade `@headlessui/react` v1 → v2
+  - Dialog, Popover, Switch component API changes
+- [ ] Remove `smoothscroll-polyfill` and its `@types` package
+  - Remove `import "smoothscroll-polyfill"` from any files
+- [ ] Replace `react-linkify` → `linkify-react` + `linkifyjs`
+- [ ] Upgrade `eslint` v7 → v9 with flat config
+  - Rewrite `.eslintrc.json` → `eslint.config.js`
+  - Update `@typescript-eslint/*` to v8+
+  - Replace `eslint-config-next` references (already removed)
+- [ ] Upgrade `prettier` v2 → v3
+- [ ] Evaluate `tailwindcss` v3 → v4 upgrade (large scope, may defer)
+- [ ] Upgrade `react-hot-toast` to latest v2.x
+
+---
+
 ## Dependency Mapping
 
 Packages that change or are removed during migration:
@@ -310,30 +432,42 @@ Packages that change or are removed during migration:
 | Current Package | Action | Replacement |
 |---|---|---|
 | `next` | Remove | `astro` |
-| `@trpc/next` | Remove | `@trpc/server` fetch adapter |
-| `@trpc/*@9.x` | Upgrade | `@trpc/*@11.x` |
+| `@trpc/next` | Remove | — |
+| `@trpc/client`, `@trpc/react`, `@trpc/server` | Remove | `elysia`, `@elysiajs/eden` |
+| `zod` | Remove | `@sinclair/typebox` (TypeBox, used by Elysia) |
+| `react-query@3` | Remove | Eden client (built-in) |
+| `superjson` | Remove | Not needed with Elysia |
 | `prisma`, `@prisma/client` | Remove | `drizzle-orm`, `drizzle-kit` |
 | `iron-session` | Remove | Custom Web Crypto session |
 | `jose` | Remove | Web Crypto API |
-| `nodemailer` | Remove | Fetch-based email API |
+| `nodemailer` | Remove | Cloudflare Email Workers |
 | `eta` | Remove | Template literals |
-| `next-i18next`, `react-i18next` | Remove | Astro i18n solution |
+| `next-i18next` | Remove | `react-i18next` (standalone) |
 | `@sentry/nextjs` | Remove | `@sentry/cloudflare`, `@sentry/browser` |
 | `next-plausible` | Remove | `<script>` tag |
 | `eslint-config-next` | Remove | `eslint-plugin-astro` |
 | `@next/bundle-analyzer` | Remove | Astro build analysis |
 | `@svgr/webpack` | Remove | Astro SVG handling |
-| `react-query@3` | Upgrade | `@tanstack/react-query@5` (used by tRPC v11) |
+| `axios` | Remove | Native `fetch` |
+| `lodash` | Remove | Native `Object.fromEntries` / `Array.prototype` methods |
+| `dayjs` | Remove | `date-fns` + `date-fns-tz` |
+| `spacetime` | Remove | `date-fns-tz` |
+| `timezone-soft` | Remove | `date-fns-tz` |
+| `smoothscroll-polyfill` | Remove | Native browser API (universally supported) |
+| `react-linkify` | Remove | `linkify-react` + `linkifyjs` |
+| `@floating-ui/react-dom-interactions` | Remove | `@floating-ui/react` (successor package) |
 | `react@17` | Upgrade | `react@18+` |
-| `wait-on` | Remove | Astro dev server ready detection |
+| `framer-motion@6` | Upgrade | `framer-motion@11+` |
+| `@headlessui/react@1` | Upgrade | `@headlessui/react@2+` |
+| `eslint@7` | Upgrade | `eslint@9+` (flat config) |
+| `prettier@2` | Upgrade | `prettier@3+` |
+| `tailwindcss@3` | Evaluate | `tailwindcss@4` (large scope, may defer) |
+| `react-hot-toast@2.2` | Upgrade | `react-hot-toast@2.4+` |
 | `tailwindcss` | Keep | Via `@astrojs/tailwind` |
-| `framer-motion` | Keep | Works in React islands |
+| `framer-motion` | Upgrade | Works in React islands |
 | `react-hook-form` | Keep | Works in React islands |
-| `dayjs` | Keep | Framework-agnostic |
-| `zod` | Keep | Framework-agnostic |
 | `clsx` | Keep | Framework-agnostic |
 | `nanoid` | Keep | Framework-agnostic |
-| `axios` | Evaluate | May replace with native `fetch` |
 
 ---
 
@@ -343,8 +477,12 @@ Packages that change or are removed during migration:
 |---|---|---|
 | D1 SQLite limitations vs PostgreSQL (no CITEXT, no hash indexes, limited concurrent writes) | High | Test all queries early; implement case handling in app layer |
 | D1 row/database size limits (500MB free, 10GB paid) | Medium | Monitor data growth; archive old polls |
-| tRPC v9→v11 breaking changes across all components | High | Migrate tRPC incrementally; keep old and new routers temporarily |
+| Elysia/Eden replacing tRPC across all components | High | Migrate route-by-route; Eden treaty client has similar DX to tRPC hooks |
 | Cloudflare Workers CPU time limits (10ms free, 30s paid) | Medium | Profile heavy operations; offload to Queues if needed |
-| Email delivery reliability changing from SMTP to API | Medium | Test thoroughly; keep SMTP as fallback option |
+| Cloudflare Email Workers only delivers to verified addresses | Medium | Graceful fallback with warning log; document need for external provider for arbitrary recipients |
 | Loss of Prisma's type safety during Drizzle migration | Medium | Drizzle has comparable type safety; write tests for all queries |
 | i18n behavior differences (URL structure, locale detection) | Low | Maintain same URL patterns; test all 16 locales |
+| date-fns format tokens differ from dayjs | Medium | Audit all format strings; `dayjs("D")` → `date-fns("d")`, `"ddd"` → `"EEE"`, etc. |
+| framer-motion v6→v11 breaking changes | Medium | Test all animation components; core `motion`/`AnimatePresence` API is stable |
+| @headlessui/react v1→v2 API changes | Medium | Dialog, Popover, Switch APIs changed; update one component at a time |
+| Tailwind CSS v3→v4 migration | High | New engine, CSS-first config; evaluate scope before committing — may defer |
