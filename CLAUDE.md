@@ -65,9 +65,11 @@ Playwright requires browser install first: `bunx playwright install --with-deps 
 - Middleware handles locale detection in `src/middleware.ts`
 
 ### Email
-- MailChannels API (fetch-based, Cloudflare Workers compatible)
+- Cloudflare Email Workers via `send_email` binding (requires Email Routing on domain)
+- Uses `mimetext` to build MIME messages, sent through `EmailMessage` API
 - Inlined HTML templates: `src/utils/email-templates.ts`
-- Send utility: `src/utils/send-email.ts`
+- Send utility: `src/utils/send-email.ts` (initialized from middleware with binding)
+- Binding configured in `wrangler.toml` as `SEND_EMAIL`
 
 ## Environment Variables
 

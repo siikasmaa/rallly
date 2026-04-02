@@ -43,11 +43,17 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   // Store locale in context for use in pages
   context.locals.locale = detectedLocale;
 
-  // Initialize D1 database binding from Cloudflare runtime
+  // Initialize bindings from Cloudflare runtime
   const runtime = (context.locals as any).runtime;
-  if (runtime?.env?.DB) {
-    const { getDb } = await import("@/db");
-    getDb(runtime.env.DB);
+  if (runtime?.env) {
+    if (runtime.env.DB) {
+      const { getDb } = await import("@/db");
+      getDb(runtime.env.DB);
+    }
+    if (runtime.env.SEND_EMAIL) {
+      const { initEmail } = await import("@/utils/send-email");
+      initEmail(runtime.env.SEND_EMAIL);
+    }
   }
 
   return next();

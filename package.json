@@ -32,6 +32,7 @@
     "framer-motion": "^6.3.11",
     "js-cookie": "^3.0.1",
     "lodash": "^4.17.21",
+    "mimetext": "^4.0.0",
     "nanoid": "^3.1.30",
     "react": "^18.3.0",
     "react-big-calendar": "^0.38.9",

@@ -1,59 +1,54 @@
+import { createMimeMessage } from "mimetext";
+
 interface SendEmailParameters {
   to: string;
   subject: string;
   html: string;
 }
 
+// Module-level reference to the SendEmail binding, set from middleware
+let _sendEmailBinding: any = null;
+
 /**
- * Send email via external SMTP API using fetch.
- * Replaces nodemailer which requires Node.js net/tls modules.
- *
- * This implementation uses a generic SMTP-over-HTTP approach.
- * For production, configure with a service like Resend, SendGrid,
- * Postmark, or Mailchannels (free for CF Workers).
+ * Initialize the email sender with the Cloudflare SendEmail binding.
+ * Called from middleware when the runtime env is available.
+ */
+export function initEmail(sendEmailBinding: any) {
+  _sendEmailBinding = sendEmailBinding;
+}
+
+/**
+ * Send email using Cloudflare Email Workers (send_email binding).
+ * https://developers.cloudflare.com/email-routing/email-workers/send-email-workers/
  */
 export const sendEmail = async (params: SendEmailParameters) => {
-  const smtpHost = process.env.SMTP_HOST;
   const supportEmail = process.env.SUPPORT_EMAIL;
 
-  if (!smtpHost || !supportEmail) {
-    console.warn("Email not configured: SMTP_HOST or SUPPORT_EMAIL missing");
+  if (!supportEmail) {
+    console.warn("Email not configured: SUPPORT_EMAIL missing");
+    return;
+  }
+
+  if (!_sendEmailBinding) {
+    console.warn(
+      "Email not configured: send_email binding not available. " +
+        "Ensure send_email is configured in wrangler.toml.",
+    );
     return;
   }
 
   try {
-    // Use MailChannels API (free for Cloudflare Workers)
-    // See: https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels/
-    const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: params.to }],
-          },
-        ],
-        from: {
-          email: supportEmail,
-          name: "Rallly",
-        },
-        subject: params.subject,
-        content: [
-          {
-            type: "text/html",
-            value: params.html,
-          },
-        ],
-      }),
+    const msg = createMimeMessage();
+    msg.setSender({ name: "Rallly", addr: supportEmail });
+    msg.setRecipient(params.to);
+    msg.setSubject(params.subject);
+    msg.addMessage({
+      contentType: "text/html",
+      data: params.html,
     });
 
-    if (!response.ok) {
-      console.error(
-        `Failed to send email: ${response.status} ${response.statusText}`,
-      );
-    }
+    const message = new EmailMessage(supportEmail, params.to, msg.asRaw());
+    await _sendEmailBinding.send(message);
   } catch (e) {
     console.error("Error sending email:", e);
   }

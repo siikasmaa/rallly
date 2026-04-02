@@ -12,6 +12,13 @@ binding = "DB"
 database_name = "rallly-db"
 database_id = "" # Set after creating: wrangler d1 create rallly-db
 
+# Email binding (Cloudflare Email Workers)
+# Requires Email Routing enabled on your domain.
+# The destination_address must be a verified email address.
+# See: https://developers.cloudflare.com/email-routing/email-workers/send-email-workers/
+[[send_email]]
+name = "SEND_EMAIL"
+
 # Environment variables (non-secret)
 [vars]
 PUBLIC_BASE_URL = "http://localhost:4321"
