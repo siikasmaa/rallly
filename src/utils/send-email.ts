@@ -49,7 +49,21 @@ export const sendEmail = async (params: SendEmailParameters) => {
 
     const message = new EmailMessage(supportEmail, params.to, msg.asRaw());
     await _sendEmailBinding.send(message);
-  } catch (e) {
-    console.error("Error sending email:", e);
+  } catch (e: any) {
+    // Cloudflare Email Workers only delivers to verified destination addresses.
+    // Sending to an unverified address throws — log it and move on so the
+    // caller (poll creation, notifications, etc.) is not disrupted.
+    if (
+      e?.message?.includes("not a verified destination address") ||
+      e?.message?.includes("Unknown address")
+    ) {
+      console.warn(
+        `Email to ${params.to} skipped: address is not a verified ` +
+          "destination in Cloudflare Email Routing. To deliver to " +
+          "arbitrary addresses, configure an external email provider.",
+      );
+    } else {
+      console.error("Error sending email:", e);
+    }
   }
 };
