@@ -1,15 +1,29 @@
 import { Trans, useTranslation } from "react-i18next";
+import * as React from "react";
 
-import { trpc } from "../../utils/trpc";
+import { api } from "../../utils/api";
 import { Button } from "../button";
 import { usePoll } from "../poll-context";
 
 export const UnverifiedPollNotice = () => {
   const { t } = useTranslation("app");
   const { poll } = usePoll();
-  const requestVerificationEmail = trpc.useMutation(
-    "polls.verification.request",
-  );
+
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
+
+  const requestVerificationEmail = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await api.api.polls.verification.request.post({
+        pollId: poll.id,
+        adminUrlId: poll.adminUrlId,
+      });
+      setIsSuccess(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [poll.id, poll.adminUrlId]);
 
   return (
     <div>
@@ -28,15 +42,12 @@ export const UnverifiedPollNotice = () => {
         </div>
         <Button
           onClick={() => {
-            requestVerificationEmail.mutate({
-              pollId: poll.id,
-              adminUrlId: poll.adminUrlId,
-            });
+            requestVerificationEmail();
           }}
-          disabled={requestVerificationEmail.isSuccess}
-          loading={requestVerificationEmail.isLoading}
+          disabled={isSuccess}
+          loading={isLoading}
         >
-          {requestVerificationEmail.isSuccess
+          {isSuccess
             ? "Vertification email sent"
             : "Resend verification email"}
         </Button>

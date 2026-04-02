@@ -7,7 +7,7 @@ import User from "@/components/icons/user.svg";
 
 import { formatDistanceToNow } from "date-fns";
 import { useDayjs } from "../utils/dayjs";
-import { trpc } from "../utils/trpc";
+import { api } from "../utils/api";
 import { EmptyState } from "./empty-state";
 import LoginForm from "./login-form";
 import { UserDetails } from "./profile/user-details";
@@ -18,7 +18,26 @@ export const Profile: React.VoidFunctionComponent = () => {
   const { locale } = useDayjs();
 
   const { t } = useTranslation("app");
-  const { data: userPolls } = trpc.useQuery(["user.getPolls"]);
+
+  const [userPolls, setUserPolls] = React.useState<{
+    polls: Array<{
+      title: string;
+      closed: boolean;
+      verified: boolean;
+      createdAt: Date;
+      adminUrlId: string;
+    }>;
+  } | null>(null);
+
+  React.useEffect(() => {
+    if (!user.isGuest) {
+      api.api.user.polls.get().then(({ data }) => {
+        if (data) {
+          setUserPolls(data as typeof userPolls);
+        }
+      });
+    }
+  }, [user.isGuest]);
 
   const createdPolls = userPolls?.polls;
 

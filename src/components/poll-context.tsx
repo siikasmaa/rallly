@@ -9,7 +9,7 @@ import {
   ParsedDateOption,
   ParsedTimeSlotOption,
 } from "@/utils/date-time-utils";
-import { GetPollApiResponse } from "@/utils/trpc/types";
+import { GetPollApiResponse } from "@/utils/types";
 
 import { useDayjs } from "../utils/dayjs";
 import ErrorPage from "./error-page";

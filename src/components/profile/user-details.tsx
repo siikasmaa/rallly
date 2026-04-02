@@ -4,7 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import { requiredString, validEmail } from "../../utils/form-validation";
-import { trpc } from "../../utils/trpc";
+import { api } from "../../utils/api";
 import { Button } from "../button";
 import { useSession } from "../session";
 import { TextInput } from "../text-input";
@@ -32,18 +32,20 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
 
   const { refresh } = useSession();
 
-  const changeName = trpc.useMutation("user.changeName", {
-    onSuccess: () => {
+  const changeName = React.useCallback(
+    async (input: { userId: string; name: string }) => {
+      await api.api.user["change-name"].post(input);
       refresh();
     },
-  });
+    [refresh],
+  );
 
   const { dirtyFields } = formState;
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
         if (dirtyFields.name) {
-          await changeName.mutateAsync({ userId, name: data.name });
+          await changeName({ userId, name: data.name });
         }
         reset(data);
       })}

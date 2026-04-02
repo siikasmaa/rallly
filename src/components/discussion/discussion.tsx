@@ -7,9 +7,10 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { formatDistanceToNow } from "date-fns";
+import type { Comment } from "@/db/schema";
 import { useDayjs } from "../../utils/dayjs";
 import { requiredString } from "../../utils/form-validation";
-import { trpc } from "../../utils/trpc";
+import { api } from "../../utils/api";
 import { Button } from "../button";
 import CompactButton from "../compact-button";
 import Dropdown, { DropdownItem } from "../dropdown";
@@ -28,49 +29,58 @@ interface CommentForm {
 
 const Discussion: React.VoidFunctionComponent = () => {
   const { locale } = useDayjs();
-  const queryClient = trpc.useContext();
   const { t } = useTranslation("app");
   const { poll } = usePoll();
 
   const pollId = poll.id;
 
-  const { data: comments } = trpc.useQuery(
-    ["polls.comments.list", { pollId }],
-    {
-      refetchInterval: 10000, // refetch every 10 seconds
-    },
-  );
+  const [comments, setComments] = React.useState<Comment[] | null>(null);
+
+  const fetchComments = React.useCallback(async () => {
+    const { data } = await api.api.polls.comments.list.get({
+      query: { pollId },
+    });
+    if (data) {
+      setComments(data as Comment[]);
+    }
+  }, [pollId]);
+
+  React.useEffect(() => {
+    fetchComments();
+    const interval = setInterval(fetchComments, 10000); // refetch every 10 seconds
+    return () => clearInterval(interval);
+  }, [fetchComments]);
 
   const plausible = usePlausible();
 
-  const addComment = trpc.useMutation("polls.comments.add", {
-    onSuccess: (newComment) => {
-      session.refresh();
-      queryClient.setQueryData(
-        ["polls.comments.list", { pollId }],
-        (existingComments = []) => {
-          return [...existingComments, newComment];
-        },
-      );
-      plausible("Created comment");
-    },
-  });
+  const session = useSession();
 
-  const deleteComment = trpc.useMutation("polls.comments.delete", {
-    onMutate: ({ commentId }) => {
-      queryClient.setQueryData(
-        ["polls.comments.list", { pollId }],
-        (existingComments = []) => {
-          return [...existingComments].filter(({ id }) => id !== commentId);
-        },
-      );
+  const addComment = React.useCallback(
+    async (input: { pollId: string; authorName: string; content: string }) => {
+      const { data: newComment } = await api.api.polls.comments.add.post(input);
+      session.refresh();
+      if (newComment) {
+        setComments((existing) =>
+          existing ? [...existing, newComment as Comment] : [newComment as Comment],
+        );
+      }
+      plausible("Created comment");
+      return newComment;
     },
-    onSuccess: () => {
+    [session, plausible],
+  );
+
+  const deleteComment = React.useCallback(
+    async (input: { commentId: string; pollId: string }) => {
+      // Optimistic update
+      setComments((existing) =>
+        existing ? existing.filter(({ id }) => id !== input.commentId) : existing,
+      );
+      await api.api.polls.comments.delete.post(input);
       plausible("Deleted comment");
     },
-  });
-
-  const session = useSession();
+    [plausible],
+  );
 
   const { register, reset, control, handleSubmit, formState } =
     useForm<CommentForm>({
@@ -137,7 +147,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                         label={t("deleteComment")}
                         disabled={!canDelete}
                         onClick={() => {
-                          deleteComment.mutate({
+                          deleteComment({
                             commentId: comment.id,
                             pollId,
                           });
@@ -157,7 +167,7 @@ const Discussion: React.VoidFunctionComponent = () => {
       <form
         className="bg-white p-4"
         onSubmit={handleSubmit(async ({ authorName, content }) => {
-          await addComment.mutateAsync({ authorName, content, pollId });
+          await addComment({ authorName, content, pollId });
           reset({ authorName, content: "" });
         })}
       >

@@ -9,14 +9,12 @@ import { Button } from "@/components/button";
 import Magic from "@/components/icons/magic.svg";
 import { validEmail } from "@/utils/form-validation";
 
-import { trpc } from "../utils/trpc";
+import { api } from "../utils/api";
 
 const LoginForm: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
   const { register, formState, handleSubmit, getValues } =
     useForm<{ email: string }>();
-
-  const login = trpc.useMutation(["login"]);
 
   const plausible = usePlausible();
   const currentPath = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
@@ -33,7 +31,7 @@ const LoginForm: React.VoidFunctionComponent = () => {
           <form
             onSubmit={handleSubmit(async ({ email }) => {
               plausible("Login requested");
-              await login.mutateAsync({ email, path: currentPath });
+              await api.api.login.post({ email, path: currentPath });
             })}
           >
             <div className="mb-2 text-slate-500">

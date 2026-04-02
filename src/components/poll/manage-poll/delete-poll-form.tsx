@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/button";
 import Exclamation from "@/components/icons/exclamation.svg";
 
-import { trpc } from "../../../utils/trpc";
+import { api } from "../../../utils/api";
 
 const confirmText = "delete-me";
 
@@ -24,11 +24,6 @@ export const DeletePollForm: React.VoidFunctionComponent<{
 
   const confirmationText = watch("confirmation");
   const canDelete = confirmationText === confirmText;
-  const deletePoll = trpc.useMutation("polls.delete", {
-    onSuccess: () => {
-      plausible("Deleted poll");
-    },
-  });
 
   const { t } = useTranslation("app");
 
@@ -42,7 +37,8 @@ export const DeletePollForm: React.VoidFunctionComponent<{
       <form
         data-testid="delete-poll-form"
         onSubmit={handleSubmit(async () => {
-          await deletePoll.mutateAsync({ urlId });
+          await api.api.polls.delete.post({ urlId });
+          plausible("Deleted poll");
           onConfirm();
         })}
       >

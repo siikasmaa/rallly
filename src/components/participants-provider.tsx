@@ -2,7 +2,7 @@ import type { Participant, Vote, VoteType } from "@/db/schema";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 
-import { trpc } from "../utils/trpc";
+import { api } from "../utils/api";
 import FullPageLoader from "./full-page-loader";
 import { useRequiredContext } from "./use-required-context";
 
@@ -10,6 +10,7 @@ const ParticipantsContext =
   React.createContext<{
     participants: Array<Participant & { votes: Vote[] }>;
     getParticipants: (optionId: string, voteType: VoteType) => Participant[];
+    refetch: () => void;
   } | null>(null);
 
 export const useParticipants = () => {
@@ -22,10 +23,22 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
 }> = ({ children, pollId }) => {
   const { t } = useTranslation("app");
 
-  const { data: participants } = trpc.useQuery([
-    "polls.participants.list",
-    { pollId },
-  ]);
+  const [participants, setParticipants] = React.useState<
+    Array<Participant & { votes: Vote[] }> | null
+  >(null);
+
+  const fetchParticipants = React.useCallback(async () => {
+    const { data } = await api.api.polls.participants.list.get({
+      query: { pollId },
+    });
+    if (data) {
+      setParticipants(data as Array<Participant & { votes: Vote[] }>);
+    }
+  }, [pollId]);
+
+  React.useEffect(() => {
+    fetchParticipants();
+  }, [fetchParticipants]);
 
   const getParticipants = (
     optionId: string,
@@ -41,14 +54,14 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
     });
   };
 
-  // TODO (Luke Vella) [2022-05-18]: Add mutations here
-
   if (!participants) {
     return <FullPageLoader>{t("loadingParticipants")}</FullPageLoader>;
   }
 
   return (
-    <ParticipantsContext.Provider value={{ participants, getParticipants }}>
+    <ParticipantsContext.Provider
+      value={{ participants, getParticipants, refetch: fetchParticipants }}
+    >
       {children}
     </ParticipantsContext.Provider>
   );

@@ -1,8 +1,12 @@
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 
-import { trpc } from "../../utils/trpc";
+import * as React from "react";
+
+import { api } from "../../utils/api";
+import type { GetPollApiResponse } from "../../utils/types";
 import { usePoll } from "../poll-context";
 import { useSession } from "../session";
+import { useParticipants } from "../participants-provider";
 import { ParticipantForm } from "./types";
 
 export const normalizeVotes = (
@@ -16,80 +20,128 @@ export const normalizeVotes = (
 };
 
 export const useAddParticipantMutation = () => {
-  const queryClient = trpc.useContext();
   const session = useSession();
+  const { refetch } = useParticipants();
   const plausible = usePlausible();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  return trpc.useMutation(["polls.participants.add"], {
-    onSuccess: (participant) => {
-      plausible("Add participant");
-      queryClient.setQueryData(
-        ["polls.participants.list", { pollId: participant.pollId }],
-        (existingParticipants = []) => {
-          return [...existingParticipants, participant];
-        },
-      );
-      queryClient.invalidateQueries([
-        "polls.participants.list",
-        { pollId: participant.pollId },
-      ]);
-      session.refresh();
+  const mutate = React.useCallback(
+    async (
+      input: {
+        pollId: string;
+        name: string;
+        votes: Array<{ optionId: string; type: "yes" | "no" | "ifNeedBe" }>;
+      },
+      options?: { onSuccess?: (data: unknown) => void },
+    ) => {
+      setIsLoading(true);
+      try {
+        const { data } = await api.api.polls.participants.add.post(input);
+        plausible("Add participant");
+        session.refresh();
+        await refetch();
+        options?.onSuccess?.(data);
+        return data;
+      } finally {
+        setIsLoading(false);
+      }
     },
-  });
+    [plausible, session, refetch],
+  );
+
+  return { mutate, mutateAsync: mutate, isLoading };
 };
 
 export const useUpdateParticipantMutation = () => {
-  const queryClient = trpc.useContext();
+  const { refetch } = useParticipants();
   const plausible = usePlausible();
-  return trpc.useMutation("polls.participants.update", {
-    onSuccess: (participant) => {
-      plausible("Update participant");
-      queryClient.setQueryData(
-        ["polls.participants.list", { pollId: participant.pollId }],
-        (existingParticipants = []) => {
-          const newParticipants = [...existingParticipants];
+  const [isLoading, setIsLoading] = React.useState(false);
 
-          const index = newParticipants.findIndex(
-            ({ id }) => id === participant.id,
-          );
-
-          if (index !== -1) {
-            newParticipants[index] = participant;
-          }
-
-          return newParticipants;
-        },
-      );
+  const mutate = React.useCallback(
+    async (
+      input: {
+        pollId: string;
+        participantId: string;
+        name: string;
+        votes: Array<{ optionId: string; type: "yes" | "no" | "ifNeedBe" }>;
+      },
+      options?: { onSuccess?: (data: unknown) => void },
+    ) => {
+      setIsLoading(true);
+      try {
+        const { data } = await api.api.polls.participants.update.post(input);
+        plausible("Update participant");
+        await refetch();
+        options?.onSuccess?.(data);
+        return data;
+      } finally {
+        setIsLoading(false);
+      }
     },
-  });
+    [plausible, refetch],
+  );
+
+  return { mutate, mutateAsync: mutate, isLoading };
 };
 
 export const useDeleteParticipantMutation = () => {
-  const queryClient = trpc.useContext();
+  const { refetch } = useParticipants();
   const plausible = usePlausible();
-  return trpc.useMutation("polls.participants.delete", {
-    onMutate: ({ participantId, pollId }) => {
-      queryClient.setQueryData(
-        ["polls.participants.list", { pollId: pollId }],
-        (existingParticipants = []) => {
-          return existingParticipants.filter(({ id }) => id !== participantId);
-        },
-      );
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const mutate = React.useCallback(
+    async (
+      input: { pollId: string; participantId: string },
+      options?: { onSuccess?: () => void },
+    ) => {
+      setIsLoading(true);
+      try {
+        await api.api.polls.participants.delete.post(input);
+        plausible("Remove participant");
+        await refetch();
+        options?.onSuccess?.();
+      } finally {
+        setIsLoading(false);
+      }
     },
-    onSuccess: () => {
-      plausible("Remove participant");
-    },
-  });
+    [plausible, refetch],
+  );
+
+  return { mutate, mutateAsync: mutate, isLoading };
 };
 
 export const useUpdatePollMutation = () => {
   const { urlId, admin } = usePoll();
   const plausible = usePlausible();
-  const queryClient = trpc.useContext();
-  return trpc.useMutation(["polls.update"], {
-    onSuccess: (data) => {
-      queryClient.setQueryData(["polls.get", { urlId, admin }], data);
-      plausible("Updated poll");
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const mutate = React.useCallback(
+    async (
+      input: {
+        urlId: string;
+        title?: string;
+        timeZone?: string;
+        location?: string;
+        description?: string;
+        optionsToDelete?: string[];
+        optionsToAdd?: string[];
+        notifications?: boolean;
+        closed?: boolean;
+      },
+      options?: { onSuccess?: (data: GetPollApiResponse) => void },
+    ) => {
+      setIsLoading(true);
+      try {
+        const { data } = await api.api.polls.update.post(input);
+        plausible("Updated poll");
+        options?.onSuccess?.(data as GetPollApiResponse);
+        return data;
+      } finally {
+        setIsLoading(false);
+      }
     },
-  });
+    [plausible],
+  );
+
+  return { mutate, mutateAsync: mutate, isLoading };
 };

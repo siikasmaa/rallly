@@ -1,13 +1,15 @@
-import { IronSessionData } from "iron-session";
 import React from "react";
 import toast from "react-hot-toast";
 
-import { trpc } from "@/utils/trpc";
+import { api } from "@/utils/api";
 
 import FullPageLoader from "./full-page-loader";
 import { useRequiredContext } from "./use-required-context";
 
-export type UserSessionData = NonNullable<IronSessionData["user"]>;
+export type UserSessionData = {
+  id: string;
+  isGuest: boolean;
+};
 
 export type SessionProps = {
   user: UserSessionData;
@@ -47,42 +49,58 @@ SessionContext.displayName = "SessionContext";
 export const SessionProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
-  const queryClient = trpc.useContext();
-  const { data: user, refetch, isLoading } = trpc.useQuery(["session.get"]);
+  const [user, setUser] = React.useState<
+    | { isGuest: true; id: string }
+    | { isGuest: false; id: string; name: string; email: string }
+    | null
+  >(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const logout = trpc.useMutation(["session.destroy"], {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["session.get"]);
-    },
-  });
+  const fetchSession = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await api.api.session.get.get();
+      setUser(data as typeof user);
+    } catch {
+      // ignore
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchSession();
+  }, [fetchSession]);
+
+  const logout = React.useCallback(async () => {
+    const promise = api.api.session.destroy.post().then(() => {
+      fetchSession();
+    });
+    toast.promise(promise, {
+      loading: "Logging out\u2026",
+      success: "Logged out",
+      error: "Failed to log out",
+    });
+  }, [fetchSession]);
 
   if (!user) {
-    return <FullPageLoader>Loading user…</FullPageLoader>;
+    return <FullPageLoader>Loading user\u2026</FullPageLoader>;
   }
 
   const sessionData: SessionContextValue = {
     user: {
       ...user,
-      shortName:
-        // try to get the first name in the event
-        // that the user entered a full name
-        user.isGuest
-          ? user.id.substring(0, 10)
-          : user.name.length > 12 && user.name.indexOf(" ") !== -1
+      shortName: user.isGuest
+        ? user.id.substring(0, 10)
+        : user.name.length > 12 && user.name.indexOf(" ") !== -1
           ? user.name.substring(0, user.name.indexOf(" "))
           : user.name,
     },
     refresh: () => {
-      refetch();
+      fetchSession();
     },
     isLoading,
-    logout: () => {
-      toast.promise(logout.mutateAsync(), {
-        loading: "Logging out…",
-        success: "Logged out",
-        error: "Failed to log out",
-      });
-    },
+    logout,
     ownsObject: (obj) => {
       return obj.userId === user.id;
     },

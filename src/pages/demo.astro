@@ -9,12 +9,16 @@ import FullPageLoader from "@/components/full-page-loader";
   </div>
   <script>
     // Client-side: create demo poll and redirect
-    import { trpc } from "@/utils/trpc";
+    import { api } from "@/utils/api";
 
     async function createDemo() {
       try {
-        const urlId = await trpc.polls.demo.create.mutate();
-        window.location.href = `/admin/${urlId}`;
+        const { data: urlId } = await api.api.polls.demo.create.post({});
+        if (urlId) {
+          window.location.href = `/admin/${urlId}`;
+        } else {
+          window.location.href = "/new";
+        }
       } catch {
         window.location.href = "/new";
       }

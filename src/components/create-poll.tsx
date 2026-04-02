@@ -5,7 +5,7 @@ import { useSessionStorage } from "react-use";
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { encodeDateOption } from "../utils/date-time-utils";
-import { trpc } from "../utils/trpc";
+import { api } from "../utils/api";
 import { Button } from "./button";
 import {
   NewEventData,
@@ -87,24 +87,11 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
   const currentStepName = steps[currentStepIndex];
 
   const [isRedirecting, setIsRedirecting] = React.useState(false);
+  const [isCreating, setIsCreating] = React.useState(false);
 
   const plausible = usePlausible();
 
-  const createPoll = trpc.useMutation(["polls.create"], {
-    onSuccess: (res) => {
-      setIsRedirecting(true);
-      plausible("Created poll", {
-        props: {
-          numberOfOptions: formData.options?.options?.length,
-          optionsView: formData?.options?.view,
-        },
-      });
-      setPersistedFormData(initialNewEventData);
-      window.location.replace(`/admin/${res.urlId}?sharing=true`);
-    },
-  });
-
-  const isBusy = isRedirecting || createPoll.isLoading;
+  const isBusy = isRedirecting || isCreating;
 
   const handleSubmit = async (
     data: PollDetailsData | PollOptionsData | UserDetailsData,
@@ -118,19 +105,36 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
     } else {
       // last step
       const title = required(formData?.eventDetails?.title);
+      setIsCreating(true);
 
-      await createPoll.mutateAsync({
-        title: title,
-        type: "date",
-        location: formData?.eventDetails?.location,
-        description: formData?.eventDetails?.description,
-        user: {
-          name: required(formData?.userDetails?.name),
-          email: required(formData?.userDetails?.contact),
-        },
-        timeZone: formData?.options?.timeZone,
-        options: required(formData?.options?.options).map(encodeDateOption),
-      });
+      try {
+        const { data: res } = await api.api.polls.create.post({
+          title: title,
+          type: "date",
+          location: formData?.eventDetails?.location,
+          description: formData?.eventDetails?.description,
+          user: {
+            name: required(formData?.userDetails?.name),
+            email: required(formData?.userDetails?.contact),
+          },
+          timeZone: formData?.options?.timeZone,
+          options: required(formData?.options?.options).map(encodeDateOption),
+        });
+
+        if (res && typeof res === "object" && "urlId" in res) {
+          setIsRedirecting(true);
+          plausible("Created poll", {
+            props: {
+              numberOfOptions: formData.options?.options?.length,
+              optionsView: formData?.options?.view,
+            },
+          });
+          setPersistedFormData(initialNewEventData);
+          window.location.replace(`/admin/${res.urlId}?sharing=true`);
+        }
+      } finally {
+        setIsCreating(false);
+      }
     }
   };
 

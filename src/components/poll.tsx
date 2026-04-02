@@ -11,7 +11,7 @@ import LockClosed from "@/components/icons/lock-closed.svg";
 import Share from "@/components/icons/share.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
-import { trpc } from "../utils/trpc";
+import { api } from "../utils/api";
 import { useParticipants } from "./participants-provider";
 import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
@@ -42,34 +42,39 @@ const PollPage: React.VoidFunctionComponent = () => {
 
   const session = useSession();
 
-  const queryClient = trpc.useContext();
   const plausible = usePlausible();
 
   const { mutate: updatePollMutation } = useUpdatePollMutation();
 
-  const verifyEmail = trpc.useMutation(["polls.verification.verify"], {
-    onSuccess: () => {
-      toast.success(t("pollHasBeenVerified"));
-      queryClient.setQueryData(["polls.get", { urlId, admin }], {
-        ...poll,
-        verified: true,
-      });
-      session.refresh();
-      plausible("Verified email");
+  const [isVerifying, setIsVerifying] = React.useState(false);
+
+  const verifyEmail = React.useCallback(
+    async (input: { code: string; pollId: string }) => {
+      setIsVerifying(true);
+      try {
+        const { error } = await api.api.polls.verification.verify.post(input);
+        if (error) {
+          toast.error(t("linkHasExpired"));
+        } else {
+          toast.success(t("pollHasBeenVerified"));
+          session.refresh();
+          plausible("Verified email");
+        }
+      } catch {
+        toast.error(t("linkHasExpired"));
+      } finally {
+        setIsVerifying(false);
+        const urlIdParam = queryParams.get("urlId") ?? urlId;
+        window.location.replace(`/admin/${urlIdParam}`);
+      }
     },
-    onError: () => {
-      toast.error(t("linkHasExpired"));
-    },
-    onSettled: () => {
-      const urlIdParam = queryParams.get("urlId") ?? urlId;
-      window.location.replace(`/admin/${urlIdParam}`);
-    },
-  });
+    [session, plausible, t, queryParams, urlId],
+  );
 
   useMount(() => {
     const code = queryParams.get("code");
     if (typeof code === "string" && !poll.verified) {
-      verifyEmail.mutate({ code, pollId: poll.id });
+      verifyEmail({ code, pollId: poll.id });
     }
   });
 
