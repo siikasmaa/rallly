@@ -1,5 +1,5 @@
-# Rallly - Cloudflare Workers & Pages Configuration
-# https://developers.cloudflare.com/workers/wrangler/configuration/
+# Rallly - Cloudflare Pages Configuration
+# https://developers.cloudflare.com/pages/functions/wrangler-configuration/
 
 name = "rallly"
 compatibility_date = "2025-06-01"
@@ -10,38 +10,18 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "rallly-db"
-database_id = "" # Set after creating: wrangler d1 create rallly-db
-
-# Email binding (Cloudflare Email Workers)
-# Requires Email Routing enabled on your domain.
-# The destination_address must be a verified email address.
-# See: https://developers.cloudflare.com/email-routing/email-workers/send-email-workers/
-[[send_email]]
-name = "SEND_EMAIL"
+database_id = "91036797-2e69-486e-8a51-3efdef469915"
 
 # Environment variables (non-secret)
 [vars]
-PUBLIC_BASE_URL = "http://localhost:4321"
+PUBLIC_BASE_URL = "https://rallly.pages.dev"
 SUPPORT_EMAIL = ""
 NODE_ENV = "production"
 
-# Secrets (set via: wrangler secret put <NAME>)
+# Secrets (set via: wrangler pages secret put <NAME> --project-name rallly)
 # SECRET_PASSWORD - Session encryption key (min 32 chars)
 # API_SECRET - House-keeping endpoint auth
-# SENTRY_DSN - Sentry error tracking DSN
-
-# Cron triggers for house-keeping
-[triggers]
-crons = ["0 6 * * *"] # Daily at 6:00 AM UTC
 
 # Development settings
 [dev]
 port = 4321
-
-# Production environment overrides
-[env.production]
-name = "rallly-production"
-
-[env.production.vars]
-PUBLIC_BASE_URL = "" # Set to production URL
-NODE_ENV = "production"
