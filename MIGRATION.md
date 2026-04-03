@@ -56,14 +56,14 @@ These files use Node.js APIs unavailable in Cloudflare Workers:
 Switch from yarn/Node.js to Bun for all tooling.
 
 - [x] Install Bun and verify version compatibility
-- [ ] Run `bun install` to generate `bun.lockb` from existing `package.json`
-- [ ] Remove `yarn.lock`
+- [x] Run `bun install` to generate `bun.lockb` from existing `package.json`
+- [x] Remove `yarn.lock`
 - [x] Update all `package.json` scripts to use `bun` where applicable
   - `"dev"` → `bun run dev` (or just `bun dev`)
   - `"build"` → `bun run build`
   - `"test"` → `bun run test` (Playwright still runs under its own runtime)
   - `"postinstall"` → `bunx prisma generate` (temporary, until Drizzle migration)
-- [ ] Verify `bun run dev`, `bun run build`, `bun run lint`, `bun run lint:tsc` all pass
+- [x] Verify `bun run dev`, `bun run build`, `bun run lint`, `bun run lint:tsc` all pass
 - [x] Update CI workflow (`.github/workflows/ci.yml`) to use Bun instead of Node.js 16
 - [x] Update Dockerfile to use `oven/bun` base image (temporary, will be removed in Phase 5)
 - [x] Update `docker_start.sh` to use `bun` commands
@@ -90,7 +90,7 @@ Drizzle has first-class D1 support; Prisma's D1 adapter is experimental.
 - [ ] Create D1 migration files via `drizzle-kit generate`
 - [x] Create `src/db/index.ts` — Drizzle client factory that accepts D1 binding
 - [x] Remove Prisma dependencies (`prisma`, `@prisma/client`)
-- [ ] Remove `prisma/` directory (schema, migrations, middlewares, db.ts)
+- [x] Remove `prisma/` directory (schema, migrations, middlewares, db.ts)
 - [x] Remove `postinstall` script (no more `prisma generate`)
 
 ### 2b: Rewrite data access layer
@@ -182,23 +182,23 @@ Next.js renders everything server-side by default. Astro renders nothing client-
 
 ### 3e: Next.js API replacement
 
-- [ ] Replace `next/link` → `<a>` tags (Astro handles prefetching natively)
-- [ ] Replace `next/router` (`useRouter`) → standard `window.location` or a lightweight router
+- [x] Replace `next/link` → `<a>` tags (Astro handles prefetching natively)
+- [x] Replace `next/router` (`useRouter`) → standard `window.location` or a lightweight router
   - Query params: `useRouter().query` → `Astro.url.searchParams` (server) / `URLSearchParams` (client)
   - Navigation: `router.push()` → `window.location.href` or `navigate()`
   - Pathname: `router.pathname` → `Astro.url.pathname` (server) / `window.location.pathname` (client)
 - [x] Replace `next/head` → Astro `<head>` in layouts
-- [ ] Replace `next/image` → `<img>` or `astro:assets` (not heavily used currently)
-- [ ] Remove `next.config.js`, `next-i18next.config.js`
+- [x] Replace `next/image` → `<img>` or `astro:assets` (not heavily used currently)
+- [x] Remove `next.config.js`, `next-i18next.config.js`
 
 ### 3f: i18n migration
 
 - [x] Choose Astro i18n approach (built-in `i18n` routing config or `astro-i18next`)
 - [x] Configure locale routing for 16 locales (cs, da, de, en, es, fa, fr, hu, it, ko, nl, pl, pt, pt-BR, sk, sv, zh)
-- [ ] Migrate translation JSON files (`public/locales/{locale}/*.json`) to new i18n system
-- [ ] Replace `useTranslation()` hook calls in React components
-- [ ] Replace `serverSideTranslations()` calls in page data loading
-- [ ] Remove `next-i18next` and `react-i18next` dependencies
+- [x] Migrate translation JSON files (`public/locales/{locale}/*.json`) to new i18n system (Phase 8 — Paraglide)
+- [x] Replace `useTranslation()` hook calls in React components (Phase 8 — Paraglide)
+- [x] Replace `serverSideTranslations()` calls in page data loading (Phase 8 — Paraglide)
+- [x] Remove `next-i18next` and `react-i18next` dependencies (Phase 8 — Paraglide)
 
 ---
 
@@ -206,7 +206,7 @@ Next.js renders everything server-side by default. Astro renders nothing client-
 
 ### 4a: tRPC on Cloudflare
 
-- [ ] Upgrade tRPC from v9 to v11 (v9 is EOL; v11 has fetch adapter for Workers)
+- [x] ~~Upgrade tRPC from v9 to v11~~ (superseded -- replaced with Elysia in Phase 7a)
   - v9 uses `createReactQueryHooks` → v11 uses `createTRPCReact`
   - v9 uses `.merge()` for routers → v11 uses `.router({ ... })` with `mergeRouters`
   - v9 `createRouter()` → v11 `initTRPC.create()` with context
@@ -215,7 +215,7 @@ Next.js renders everything server-side by default. Astro renders nothing client-
 - [x] Update tRPC context to receive D1 binding from Cloudflare env
 - [x] Update `src/utils/trpc.ts` client configuration for new tRPC version
 - [x] Replace `superjson` transformer if needed (should still work)
-- [ ] Update all component-level tRPC usage (hook API changes between v9 and v11)
+- [x] ~~Update all component-level tRPC usage~~ (superseded -- replaced with Eden in Phase 7a)
 
 ### 4b: Authentication on Cloudflare
 
@@ -287,7 +287,7 @@ Nodemailer requires Node.js `net`/`tls` modules, unavailable in Workers.
 - [x] Remove `@svgr/webpack`
 - [x] Remove Next.js config files (`next.config.js`, `next-i18next.config.js`, `sentry.*.config.js`)
 - [x] Upgrade React to v18+ (Astro supports it)
-- [ ] Upgrade remaining dependencies to latest versions
+- [x] Upgrade remaining dependencies to latest versions (Phase 7e)
 - [x] Update TypeScript config for Astro
 - [ ] Run full E2E test suite and fix regressions
 - [x] Update `sample.env` with new/changed variables
@@ -344,7 +344,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 - [x] Create Astro API catch-all endpoint that delegates to Elysia `app.handle()`
 - [x] Export Elysia app type for Eden client inference
 - [x] Create Eden treaty client in `src/utils/api.ts` replacing `src/utils/trpc.ts`
-- [ ] Update `wrangler.toml` `compatibility_date` to `"2025-06-01"` or later
+- [x] Update `wrangler.toml` `compatibility_date` to `"2025-06-01"` or later
 - [x] Rewrite all component API calls from `trpc.useQuery`/`trpc.useMutation` to Eden (14 files)
 - [x] Remove `src/server/createRouter.ts`
 - [x] Remove `src/server/context.ts` (Elysia has its own context/derive pattern)

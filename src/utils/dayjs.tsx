@@ -143,30 +143,21 @@ export const DayjsProvider: React.VoidFunctionComponent<{
     return "default" in mod ? mod.default : mod;
   }, [localeConfig]);
 
-  if (!dateFnsLocale) {
-    // wait for locale to load before rendering content
-    return null;
-  }
-
   const weekStartsOnIndex: 0 | 1 = weekStartsOn === "monday" ? 1 : 0;
 
-  // Build a locale that respects the user's time format preference
-  const effectiveLocale: Locale =
-    localeConfig.timeFormat !== timeFormat
-      ? {
-          ...dateFnsLocale,
-          formatLong: {
-            ...dateFnsLocale.formatLong!,
-            time: () => (timeFormat === "12h" ? "h:mm a" : "HH:mm"),
-          },
-        }
-      : dateFnsLocale;
+  // Use the loaded locale, or fall back to a minimal default
+  const effectiveLocale: Locale | undefined = dateFnsLocale;
 
-  const formatDate = (date: Date | number, formatStr: string) =>
-    format(date, formatStr, {
-      locale: effectiveLocale,
-      weekStartsOn: weekStartsOnIndex,
-    });
+  const formatDate = (date: Date | number, formatStr: string) => {
+    try {
+      return format(date, formatStr, {
+        locale: effectiveLocale,
+        weekStartsOn: weekStartsOnIndex,
+      });
+    } catch {
+      return format(date, formatStr);
+    }
+  };
 
   return (
     <DateContext.Provider

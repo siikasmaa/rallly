@@ -2,6 +2,7 @@ import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   output: "server",
@@ -17,6 +18,7 @@ export default defineConfig({
     }),
   ],
   vite: {
+    plugins: [svgr({ svgrOptions: { exportType: "default" }, include: "**/*.svg" })],
     resolve: {
       alias: {
         "@/": new URL("./src/", import.meta.url).pathname,
