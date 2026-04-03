@@ -2,8 +2,8 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { Button } from "@/components/button";
-import Chat from "@/components/icons/chat.svg";
-import EmojiSad from "@/components/icons/emoji-sad.svg";
+import Chat from "@/components/icons/chat.svg?react";
+import EmojiSad from "@/components/icons/emoji-sad.svg?react";
 
 import { showCrispChat } from "./crisp-chat";
 

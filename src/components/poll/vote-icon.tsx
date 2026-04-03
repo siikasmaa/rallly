@@ -2,10 +2,10 @@ import type { VoteType } from "@/db/schema";
 import clsx from "clsx";
 import * as React from "react";
 
-import CheckCircle from "@/components/icons/check-circle.svg";
-import IfNeedBe from "@/components/icons/if-need-be.svg";
-import QuestionMark from "@/components/icons/question-mark.svg";
-import X from "@/components/icons/x-circle.svg";
+import CheckCircle from "@/components/icons/check-circle.svg?react";
+import IfNeedBe from "@/components/icons/if-need-be.svg?react";
+import QuestionMark from "@/components/icons/question-mark.svg?react";
+import X from "@/components/icons/x-circle.svg?react";
 
 const VoteIcon: React.VoidFunctionComponent<{
   type?: VoteType;

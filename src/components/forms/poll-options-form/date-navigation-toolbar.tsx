@@ -1,8 +1,8 @@
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import ChevronLeft from "../../icons/chevron-left.svg";
-import ChevronRight from "../../icons/chevron-right.svg";
+import ChevronLeft from "../../icons/chevron-left.svg?react";
+import ChevronRight from "../../icons/chevron-right.svg?react";
 
 export interface DateNavigationToolbarProps {
   year: number;

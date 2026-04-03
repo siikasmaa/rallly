@@ -5,8 +5,8 @@ import { Controller, useForm } from "react-hook-form";
 
 import { getBrowserTimeZone } from "../../../utils/date-time-utils";
 import FullPageLoader from "../../full-page-loader";
-import Calendar from "../../icons/calendar.svg";
-import Table from "../../icons/table.svg";
+import Calendar from "../../icons/calendar.svg?react";
+import Table from "../../icons/table.svg?react";
 import { useModal } from "../../modal";
 import TimeZonePicker from "../../time-zone-picker";
 import { PollFormProps } from "../types";

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import * as React from "react";
 
-import Spinner from "./icons/spinner.svg";
+import Spinner from "./icons/spinner.svg?react";
 
 interface FullPageLoaderProps {
   className?: string;

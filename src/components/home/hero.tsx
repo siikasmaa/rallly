@@ -5,7 +5,7 @@ import * as React from "react";
 import { DayjsProvider } from "../../utils/dayjs";
 import { UserAvatarProvider } from "../poll/user-avatar";
 import PollDemo from "./poll-demo";
-import ScribbleArrow from "./scribble-arrow.svg";
+import ScribbleArrow from "./scribble-arrow.svg?react";
 
 const Hero: React.VoidFunctionComponent = () => {
   const names = ["Peter", "Christine", "Samantha", "Joseph"];

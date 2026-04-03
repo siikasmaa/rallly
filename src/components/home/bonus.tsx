@@ -1,11 +1,11 @@
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import Code from "@/components/icons/code.svg";
-import CursorClick from "@/components/icons/cursor-click.svg";
-import Server from "@/components/icons/server.svg";
+import Code from "@/components/icons/code.svg?react";
+import CursorClick from "@/components/icons/cursor-click.svg?react";
+import Server from "@/components/icons/server.svg?react";
 
-import Ban from "./ban-ads.svg";
+import Ban from "./ban-ads.svg?react";
 
 const Bonus: React.VoidFunctionComponent = () => {
   return (

@@ -10,7 +10,7 @@ import clsx from "clsx";
 import { format as formatTz } from "date-fns-tz";
 import React from "react";
 
-import ChevronDown from "../../components/icons/chevron-down.svg";
+import ChevronDown from "../../components/icons/chevron-down.svg?react";
 import { styleMenuItem } from "../menu-styles";
 import timeZones from "./time-zones.json";
 

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import ChevronDown from "@/components/icons/chevron-down.svg";
+import ChevronDown from "@/components/icons/chevron-down.svg?react";
 
 import { useParticipants } from "../../participants-provider";
 import { ScoreSummary } from "../score-summary";

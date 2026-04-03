@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 
 import { getPortal } from "@/utils/selectors";
 
-import CookiesIllustration from "./cookie-consent/cookies.svg";
+import CookiesIllustration from "./cookie-consent/cookies.svg?react";
 
 const CookieConsentPopover: React.VoidFunctionComponent = () => {
   const [visible, setVisible] = React.useState(true);

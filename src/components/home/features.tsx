@@ -1,10 +1,10 @@
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import Bell from "@/components/icons/bell.svg";
-import Chat from "@/components/icons/chat.svg";
-import Clock from "@/components/icons/clock.svg";
-import DeviceMobile from "@/components/icons/device-mobile.svg";
+import Bell from "@/components/icons/bell.svg?react";
+import Chat from "@/components/icons/chat.svg?react";
+import Clock from "@/components/icons/clock.svg?react";
+import DeviceMobile from "@/components/icons/device-mobile.svg?react";
 
 const Features: React.VoidFunctionComponent = () => {
   return (

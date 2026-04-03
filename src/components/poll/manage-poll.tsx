@@ -3,13 +3,13 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 
 import { Button } from "@/components/button";
-import Cog from "@/components/icons/cog.svg";
-import LockClosed from "@/components/icons/lock-closed.svg";
-import LockOpen from "@/components/icons/lock-open.svg";
-import Pencil from "@/components/icons/pencil-alt.svg";
-import Save from "@/components/icons/save.svg";
-import Table from "@/components/icons/table.svg";
-import Trash from "@/components/icons/trash.svg";
+import Cog from "@/components/icons/cog.svg?react";
+import LockClosed from "@/components/icons/lock-closed.svg?react";
+import LockOpen from "@/components/icons/lock-open.svg?react";
+import Pencil from "@/components/icons/pencil-alt.svg?react";
+import Save from "@/components/icons/save.svg?react";
+import Table from "@/components/icons/table.svg?react";
+import Trash from "@/components/icons/trash.svg?react";
 import { encodeDateOption } from "@/utils/date-time-utils";
 
 import Dropdown, { DropdownItem } from "../dropdown";

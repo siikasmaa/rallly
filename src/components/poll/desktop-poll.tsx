@@ -3,10 +3,10 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { useMeasure } from "react-use";
 
-import ArrowLeft from "@/components/icons/arrow-left.svg";
-import ArrowRight from "@/components/icons/arrow-right.svg";
-import Check from "@/components/icons/check.svg";
-import Plus from "@/components/icons/plus-sm.svg";
+import ArrowLeft from "@/components/icons/arrow-left.svg?react";
+import ArrowRight from "@/components/icons/arrow-right.svg?react";
+import Check from "@/components/icons/check.svg?react";
+import Plus from "@/components/icons/plus-sm.svg?react";
 
 import { Button } from "../button";
 import { useParticipants } from "../participants-provider";

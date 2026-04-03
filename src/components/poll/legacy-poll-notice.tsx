@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import * as React from "react";
 
-import Speakerphone from "@/components/icons/speakerphone.svg";
+import Speakerphone from "@/components/icons/speakerphone.svg?react";
 
 const cookieName = "legacy-poll-notice";
 

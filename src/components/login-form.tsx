@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { Button } from "@/components/button";
-import Magic from "@/components/icons/magic.svg";
+import Magic from "@/components/icons/magic.svg?react";
 import { validEmail } from "@/utils/form-validation";
 
 import { api } from "../utils/api";

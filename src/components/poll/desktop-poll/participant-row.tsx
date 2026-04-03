@@ -3,8 +3,8 @@ import clsx from "clsx";
 import * as React from "react";
 
 import CompactButton from "@/components/compact-button";
-import Pencil from "@/components/icons/pencil-alt.svg";
-import Trash from "@/components/icons/trash.svg";
+import Pencil from "@/components/icons/pencil-alt.svg?react";
+import Trash from "@/components/icons/trash.svg?react";
 import { usePoll } from "@/components/poll-context";
 import { useSession } from "@/components/session";
 

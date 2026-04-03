@@ -5,11 +5,11 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import Check from "@/components/icons/check.svg";
-import ChevronDown from "@/components/icons/chevron-down.svg";
-import Pencil from "@/components/icons/pencil-alt.svg";
-import PlusCircle from "@/components/icons/plus-circle.svg";
-import Trash from "@/components/icons/trash.svg";
+import Check from "@/components/icons/check.svg?react";
+import ChevronDown from "@/components/icons/chevron-down.svg?react";
+import Pencil from "@/components/icons/pencil-alt.svg?react";
+import PlusCircle from "@/components/icons/plus-circle.svg?react";
+import Trash from "@/components/icons/trash.svg?react";
 import { usePoll } from "@/components/poll-context";
 
 import { requiredString } from "../../utils/form-validation";

@@ -3,9 +3,9 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { createBreakpoint } from "react-use";
 
-import DotsVertical from "@/components/icons/dots-vertical.svg";
-import Github from "@/components/icons/github.svg";
-import Logo from "~/public/logo.svg";
+import DotsVertical from "@/components/icons/dots-vertical.svg?react";
+import Github from "@/components/icons/github.svg?react";
+import Logo from "~/public/logo.svg?react";
 
 import Footer from "./page-layout/footer";
 

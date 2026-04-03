@@ -6,7 +6,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/button";
-import Exclamation from "@/components/icons/exclamation.svg";
+import Exclamation from "@/components/icons/exclamation.svg?react";
 
 import { api } from "../../../utils/api";
 

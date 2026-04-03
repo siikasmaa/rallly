@@ -1,9 +1,9 @@
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import Calendar from "@/components/icons/calendar.svg";
-import Pencil from "@/components/icons/pencil.svg";
-import User from "@/components/icons/user.svg";
+import Calendar from "@/components/icons/calendar.svg?react";
+import Pencil from "@/components/icons/pencil.svg?react";
+import User from "@/components/icons/user.svg?react";
 
 import { formatDistanceToNow } from "date-fns";
 import { useDayjs } from "../utils/dayjs";

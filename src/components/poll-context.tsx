@@ -2,7 +2,7 @@ import type { Participant, Vote, VoteType } from "@/db/schema";
 import * as m from "@/paraglide/messages";
 import React from "react";
 
-import Trash from "@/components/icons/trash.svg";
+import Trash from "@/components/icons/trash.svg?react";
 import {
   decodeOptions,
   getBrowserTimeZone,

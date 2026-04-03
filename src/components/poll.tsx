@@ -7,8 +7,8 @@ import { useMount } from "react-use";
 const usePlausible = () => (eventName: string, props?: unknown) => {};
 
 import { Button } from "@/components/button";
-import LockClosed from "@/components/icons/lock-closed.svg";
-import Share from "@/components/icons/share.svg";
+import LockClosed from "@/components/icons/lock-closed.svg?react";
+import Share from "@/components/icons/share.svg?react";
 import { preventWidows } from "@/utils/prevent-widows";
 
 import { api } from "../utils/api";

@@ -18,7 +18,7 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [svgr({ svgrOptions: { exportType: "default" }, include: "**/*.svg" })],
+    plugins: [svgr()],
     resolve: {
       alias: {
         "@/": new URL("./src/", import.meta.url).pathname,

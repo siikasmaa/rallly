@@ -13,7 +13,7 @@ import * as React from "react";
 import { stopPropagation } from "@/utils/stop-propagation";
 
 import { useDayjs } from "../../../../utils/dayjs";
-import ChevronDown from "../../../icons/chevron-down.svg";
+import ChevronDown from "../../../icons/chevron-down.svg?react";
 import { styleMenuItem } from "../../../menu-styles";
 
 export interface TimePickerProps {

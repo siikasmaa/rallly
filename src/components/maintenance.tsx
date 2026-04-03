@@ -1,7 +1,7 @@
 import React from "react";
 
-import Clock from "@/components/icons/clock.svg";
-import Logo from "~/public/logo.svg";
+import Clock from "@/components/icons/clock.svg?react";
+import Logo from "~/public/logo.svg?react";
 
 const Maintenance: React.VoidFunctionComponent = () => {
   return (

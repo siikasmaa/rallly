@@ -1,0 +1,15 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Test">
+  <div id="test-static">
+    <h1 style="font-size:2rem; text-align:center; margin-top:4rem;">Rallly is working!</h1>
+    <p style="text-align:center;">Static content renders. Testing React island below:</p>
+  </div>
+  <div id="react-test"></div>
+  <script>
+    const el = document.getElementById("react-test");
+    if (el) el.innerHTML = "<p style='text-align:center; color:green;'>Client JS works!</p>";
+  </script>
+</BaseLayout>

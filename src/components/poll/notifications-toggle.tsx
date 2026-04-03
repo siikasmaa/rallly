@@ -4,8 +4,8 @@ const usePlausible = () => (eventName: string, props?: unknown) => {};
 import * as React from "react";
 
 import { Button } from "@/components/button";
-import Bell from "@/components/icons/bell.svg";
-import BellCrossed from "@/components/icons/bell-crossed.svg";
+import Bell from "@/components/icons/bell.svg?react";
+import BellCrossed from "@/components/icons/bell-crossed.svg?react";
 
 import { usePoll } from "../poll-context";
 import Tooltip from "../tooltip";

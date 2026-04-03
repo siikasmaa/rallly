@@ -1,14 +1,14 @@
 import * as m from "@/paraglide/messages";
 import * as React from "react";
 
-import Discord from "@/components/icons/discord.svg";
-import Star from "@/components/icons/star.svg";
-import Translate from "@/components/icons/translate.svg";
-import Twitter from "@/components/icons/twitter.svg";
-import DigitalOcean from "~/public/digitalocean.svg";
-import Logo from "~/public/logo.svg";
-import Sentry from "~/public/sentry.svg";
-import Vercel from "~/public/vercel-logotype-dark.svg";
+import Discord from "@/components/icons/discord.svg?react";
+import Star from "@/components/icons/star.svg?react";
+import Translate from "@/components/icons/translate.svg?react";
+import Twitter from "@/components/icons/twitter.svg?react";
+import DigitalOcean from "~/public/digitalocean.svg?react";
+import Logo from "~/public/logo.svg?react";
+import Sentry from "~/public/sentry.svg?react";
+import Vercel from "~/public/vercel-logotype-dark.svg?react";
 
 import { LanguageSelect } from "../poll/language-selector";
 

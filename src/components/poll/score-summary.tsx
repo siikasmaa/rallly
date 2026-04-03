@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 import { usePrevious } from "react-use";
 
-import User from "@/components/icons/user-solid.svg";
+import User from "@/components/icons/user-solid.svg?react";
 
 export interface PopularityScoreProps {
   yesScore: number;

@@ -3,8 +3,8 @@ import * as m from "@/paraglide/messages";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import ArrowLeft from "@/components/icons/arrow-left.svg";
-import ArrowRight from "@/components/icons/arrow-right.svg";
+import ArrowLeft from "@/components/icons/arrow-left.svg?react";
+import ArrowRight from "@/components/icons/arrow-right.svg?react";
 
 import { requiredString } from "../../../utils/form-validation";
 import { Button } from "../../button";
