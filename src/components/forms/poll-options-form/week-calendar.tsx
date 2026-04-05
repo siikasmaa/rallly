@@ -2,6 +2,7 @@ import { addMinutes, differenceInMinutes, format } from "date-fns";
 import clsx from "clsx";
 import React from "react";
 import { Calendar } from "react-big-calendar";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useMount } from "react-use";
 
 import { getDuration } from "../../../utils/date-time-utils";

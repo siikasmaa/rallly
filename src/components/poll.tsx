@@ -10,9 +10,12 @@ import { Button } from "@/components/button";
 import LockClosed from "@/components/icons/lock-closed.svg?react";
 import Share from "@/components/icons/share.svg?react";
 import { preventWidows } from "@/utils/prevent-widows";
+import type { GetPollApiResponse } from "@/utils/types";
 
 import { api } from "../utils/api";
-import { useParticipants } from "./participants-provider";
+import FullPageLoader from "./full-page-loader";
+import { ParticipantsProvider, useParticipants } from "./participants-provider";
+import { PollContextProvider, usePoll } from "./poll-context";
 import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
@@ -22,9 +25,9 @@ import { UnverifiedPollNotice } from "./poll/unverified-poll-notice";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
-import { usePoll } from "./poll-context";
-import { useSession } from "./session";
+import { useSession, withSession } from "./session";
 import Sharing from "./sharing";
+import StandardLayout from "./standard-layout";
 
 const Discussion = React.lazy(() => import("@/components/discussion"));
 
@@ -263,4 +266,50 @@ const PollPage: React.VoidFunctionComponent = () => {
   );
 };
 
-export default PollPage;
+const PollPageWrapper: React.VoidFunctionComponent<{
+  urlId: string;
+  admin: boolean;
+  code?: string;
+}> = ({ urlId, admin }) => {
+  const [poll, setPoll] = React.useState<GetPollApiResponse | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    api.api.polls.get
+      .get({ query: { urlId, admin: String(admin) } })
+      .then(({ data, error: err }) => {
+        if (err || !data) {
+          setError("Poll not found");
+        } else {
+          setPoll(data as GetPollApiResponse);
+        }
+      })
+      .catch(() => setError("Failed to load poll"));
+  }, [urlId, admin]);
+
+  if (error) {
+    return (
+      <StandardLayout>
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <div className="text-center text-slate-500">{error}</div>
+        </div>
+      </StandardLayout>
+    );
+  }
+
+  if (!poll) {
+    return <FullPageLoader>{m.app_loading()}</FullPageLoader>;
+  }
+
+  return (
+    <StandardLayout>
+      <ParticipantsProvider pollId={poll.id}>
+        <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
+          <PollPage />
+        </PollContextProvider>
+      </ParticipantsProvider>
+    </StandardLayout>
+  );
+};
+
+export default withSession(PollPageWrapper);

@@ -68,7 +68,7 @@ const demoOptionValues = [
   "2022-12-17",
 ];
 
-export const app = new Elysia({ prefix: "/api" })
+export const app = new Elysia({ prefix: "/api", aot: false })
   .derive(async ({ request }) => {
     const cookieHeader = request.headers.get("cookie") ?? "";
     const cookies = parseCookies(cookieHeader);

@@ -39,10 +39,8 @@ function footer(homePageUrl: string, supportEmail: string | undefined) {
     <p style="margin-bottom:4px;text-transform:uppercase;">RALLLY</p>
     <p style="font-style:italic;">Collaborative Scheduling</p>
     <p style="cursor:default;">
-      <a href="${homePageUrl}" class="hover-underline" style="color:#6366f1;text-decoration:none;">Website</a> &bull;
-      <a href="https://twitter.com/ralllyco" class="hover-underline" style="color:#6366f1;text-decoration:none;">Twitter</a> &bull;
-      <a href="https://github.com/lukevella/rallly" class="hover-underline" style="color:#6366f1;text-decoration:none;">Github</a> &bull;
-      <a href="mailto:${supportEmail ?? ""}" class="hover-underline" style="color:#6366f1;text-decoration:none;">Contact</a>
+      <a href="${homePageUrl}" class="hover-underline" style="color:#6366f1;text-decoration:none;">Website</a>${supportEmail ? ` &bull;
+      <a href="mailto:${supportEmail}" class="hover-underline" style="color:#6366f1;text-decoration:none;">Contact</a>` : ""}
     </p>
   </td>
 </tr>`;
