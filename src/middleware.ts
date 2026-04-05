@@ -63,6 +63,10 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
         const { getDb } = await import("@/db");
         getDb(runtime.env.DB);
       }
+      if (runtime.env.SEND_EMAIL) {
+        const { initEmail } = await import("@/utils/send-email");
+        initEmail(runtime.env.SEND_EMAIL);
+      }
     }
   } catch (e) {
     console.error("Middleware error:", e);

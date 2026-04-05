@@ -1,5 +1,6 @@
 import * as m from "@/paraglide/messages";
 import React from "react";
+import toast from "react-hot-toast";
 import { useSessionStorage } from "react-use";
 
 const usePlausible = () => (eventName: string, props?: unknown) => {};
@@ -101,23 +102,32 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
         [currentStepName]: data,
       });
     } else {
-      // last step
+      // last step — use submitted data for user details
+      const userDetails = data as UserDetailsData;
       const title = required(formData?.eventDetails?.title);
       setIsCreating(true);
 
       try {
-        const { data: res } = await api.api.polls.create.post({
+        const { data: res, error } = await api.api.polls.create.post({
           title: title,
           type: "date",
           location: formData?.eventDetails?.location,
           description: formData?.eventDetails?.description,
           user: {
-            name: required(formData?.userDetails?.name),
-            email: required(formData?.userDetails?.contact),
+            name: required(userDetails.name),
+            email: required(userDetails.contact),
           },
           timeZone: formData?.options?.timeZone,
           options: required(formData?.options?.options).map(encodeDateOption),
         });
+
+        if (error) {
+          throw new Error(
+            typeof error.value === "string"
+              ? error.value
+              : "Failed to create poll",
+          );
+        }
 
         if (res && typeof res === "object" && "urlId" in res) {
           setIsRedirecting(true);
@@ -130,6 +140,10 @@ const Page: React.VoidFunctionComponent<CreatePollPageProps> = ({
           setPersistedFormData(initialNewEventData);
           window.location.replace(`/admin/${res.urlId}?sharing=true`);
         }
+      } catch (e) {
+        toast.error(
+          e instanceof Error ? e.message : "Something went wrong",
+        );
       } finally {
         setIsCreating(false);
       }

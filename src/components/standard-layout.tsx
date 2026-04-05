@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import * as m from "@/paraglide/messages";
 import React from "react";
+import { Toaster } from "react-hot-toast";
 
 import Menu from "@/components/icons/menu.svg?react";
 import User from "@/components/icons/user.svg?react";
@@ -11,16 +12,11 @@ import Logo from "~/public/logo.svg?react";
 import { DayjsProvider } from "../utils/dayjs";
 import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import Adjustments from "./icons/adjustments.svg?react";
-import Cash from "./icons/cash.svg?react";
-import Discord from "./icons/discord.svg?react";
 import DotsVertical from "./icons/dots-vertical.svg?react";
-import Github from "./icons/github.svg?react";
 import Login from "./icons/login.svg?react";
 import Logout from "./icons/logout.svg?react";
 import Pencil from "./icons/pencil.svg?react";
 import Question from "./icons/question-mark-circle.svg?react";
-import Support from "./icons/support.svg?react";
-import Twitter from "./icons/twitter.svg?react";
 import LoginForm from "./login-form";
 import { useModal } from "./modal";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
@@ -129,15 +125,6 @@ const AppMenu: React.VoidFunctionComponent<{ className?: string }> = ({
           <Pencil className="h-5 opacity-75 " />
           <span className="inline-block">{m.app_newPoll()}</span>
       </a>
-      <a
-        target="_blank"
-        href="https://support.rallly.co"
-        className="flex cursor-pointer items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 pr-4 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-        rel="noreferrer"
-      >
-        <Support className="h-5 opacity-75" />
-        <span className="inline-block">{m.common_support()}</span>
-      </a>
     </div>
   );
 };
@@ -176,15 +163,6 @@ const UserDropdown: React.VoidFunctionComponent<
                     </div>
                   </div>
                   <p>{m.app_guestSessionNotice()}</p>
-                  <div>
-                    <a
-                      href="https://support.rallly.co/guest-sessions"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {m.app_guestSessionReadMore()}
-                    </a>
-                  </div>
                 </div>
               ),
               overlayClosable: true,
@@ -246,6 +224,7 @@ const StandardLayout: React.VoidFunctionComponent<{
   return (
     <ModalProvider>
       <DayjsProvider>
+        <Toaster />
         <div
           className="relative flex min-h-full flex-col bg-gray-50 lg:flex-row"
           {...rest}
@@ -262,15 +241,6 @@ const StandardLayout: React.VoidFunctionComponent<{
                     <Pencil className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
                     <span className="grow text-left">{m.app_newPoll()}</span>
               </a>
-                <a
-                  target="_blank"
-                  href="https://support.rallly.co"
-                  className="group mb-1 flex items-center space-x-3 whitespace-nowrap rounded-md px-3 py-1 font-medium text-slate-600 transition-colors hover:bg-slate-500/10 hover:text-slate-600 hover:no-underline active:bg-slate-500/20"
-                  rel="noreferrer"
-                >
-                  <Support className="h-5 opacity-75 group-hover:text-primary-500 group-hover:opacity-100" />
-                  <span className="grow text-left">{m.common_support()}</span>
-                </a>
                 <Popover
                   placement="right-start"
                   trigger={
@@ -337,57 +307,9 @@ const StandardLayout: React.VoidFunctionComponent<{
             <div className="max-w-full pt-12 md:w-[1024px] lg:min-h-[calc(100vh-64px)] lg:pt-0">
               {children}
             </div>
-            <div className="flex flex-col items-center space-y-4 px-6 pt-3 pb-6 text-slate-400 lg:h-16 lg:flex-row lg:space-y-0 lg:space-x-6 lg:py-0 lg:px-8 lg:pb-3">
-              <div>
-                <a href="https://rallly.co" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                    <Logo className="h-5" />
-                </a>
-              </div>
-              <div className="hidden text-slate-300 lg:block">&bull;</div>
-              <div className="flex items-center justify-center space-x-6 md:justify-start">
-                <a
-                  target="_blank"
-                  href="https://support.rallly.co"
-                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  rel="noreferrer"
-                >
-                  {m.common_support()}
-                </a>
-                <a href="https://github.com/lukevella/rallly/discussions" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                    {m.common_discussions()}
-                </a>
-                <a href="https://blog.rallly.co" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                    {m.common_blog()}
-                </a>
-                <div className="hidden text-slate-300 lg:block">&bull;</div>
-                <div className="flex items-center space-x-6">
-                  <a
-                    href="https://twitter.com/ralllyco"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Twitter className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://github.com/lukevella/rallly"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Github className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://discord.gg/uzg4ZcHbuM"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Discord className="h-5 w-5" />
-                  </a>
-                </div>
-              </div>
-              <div className="hidden text-slate-300 lg:block">&bull;</div>
-              <a
-                href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
-                className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors hover:bg-primary-500 hover:text-white hover:no-underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 active:bg-primary-600"
-              >
-                <Cash className="mr-1 inline-block w-5" />
-                <span>{m.app_donate()}</span>
+            <div className="flex items-center justify-center px-6 pt-3 pb-6 text-slate-400 lg:h-16 lg:px-8 lg:py-0 lg:pb-3">
+              <a href="/" className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+                <Logo className="h-5" />
               </a>
             </div>
           </div>
